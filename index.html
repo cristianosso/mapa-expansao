@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa de Expansão - Análise de Concorrência</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        .container { display: flex; height: 100vh; }
+        .sidebar { width: 320px; background: white; box-shadow: 0 0 10px rgba(0,0,0,0.1); overflow-y: auto; padding: 20px; }
+        .map { flex: 1; }
+        h1 { font-size: 24px; margin-bottom: 5px; color: #333; }
+        .subtitle { font-size: 12px; color: #999; margin-bottom: 20px; }
+        .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .stat-box { background: #f5f5f5; padding: 15px; border-radius: 8px; text-align: center; }
+        .stat-label { font-size: 11px; color: #666; margin-bottom: 5px; }
+        .stat-value { font-size: 28px; font-weight: bold; }
+        .blue { color: #3B82F6; }
+        .red { color: #EF4444; }
+        .green { color: #10B981; }
+        .controls { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 10px; font-size: 13px; font-weight: 500; }
+        input[type="checkbox"] { width: auto; }
+        select { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 12px; }
+        .legend { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-top: 20px; }
+        .legend-title { font-size: 11px; font-weight: 600; margin-bottom: 10px; }
+        .legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 12px; }
+        .legend-dot { width: 12px; height: 12px; border-radius: 50%; }
+        .info-box { background: #fffbeb; border-left: 4px solid #fbbf24; padding: 12px; border-radius: 4px; margin-top: 20px; font-size: 12px; }
+        .info-title { font-weight: 600; color: #92400e; margin-bottom: 5px; }
+        .info-text { color: #b45309; }
+        .info-box.updated { background: #ecfdf5; border-left-color: #10B981; }
+        .info-box.updated .info-title { color: #065f46; }
+        .info-box.updated .info-text { color: #047857; }
+        .region-filter { margin-top: 10px; }
+        .new-badge { background: #10B981; color: white; font-size: 9px; padding: 2px 6px; border-radius: 10px; margin-left: 5px; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h1>Mapa de Expansão</h1>
+            <p class="subtitle">Análise de Concorrência SP</p>
+            
+            <div class="stats">
+                <div class="stat-box">
+                    <div class="stat-label">Suas Unidades</div>
+                    <div class="stat-value blue">19</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Concorrentes</div>
+                    <div class="stat-value red" id="compCount">66+</div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <label>
+                    <input type="checkbox" id="showCompetitors" checked> Mostrar Concorrentes
+                </label>
+
+                <label>
+                    <input type="checkbox" id="showNewOnly" unchecked> Apenas Novos (Zona Leste) <span class="new-badge">+25</span>
+                </label>
+                
+                <label>Filtrar Fase</label>
+                <select id="phaseFilter">
+                    <option value="">Todas as Fases</option>
+                    <option value="F1">F1 - Âncora</option>
+                    <option value="F2">F2 - Expansão</option>
+                    <option value="F3">F3 - Dominação</option>
+                    <option value="F4">F4 - Metropolitana</option>
+                </select>
+
+                <div class="region-filter">
+                    <label>Filtrar Região Concorrentes</label>
+                    <select id="regionFilter">
+                        <option value="">Todas as Regiões</option>
+                        <option value="centro">Centro / Oeste / Sul</option>
+                        <option value="leste">Zona Leste</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="legend">
+                <div class="legend-title">LEGENDA</div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: #3B82F6; border: 2px solid #1E40AF;"></div>
+                    <span>Suas Unidades (Azul)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: #EF4444; border: 2px solid #991B1B;"></div>
+                    <span>Concorrentes (Vermelho)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: #F97316; border: 2px solid #C2410C;"></div>
+                    <span>Novos - Zona Leste (Laranja)</span>
+                </div>
+            </div>
+
+            <div class="info-box updated">
+                <div class="info-title">ATUALIZAÇÃO - Zona Leste</div>
+                <div class="info-text">+25 concorrentes mapeados na Zona Leste: Tatuapé, Penha, Itaquera, Vila Matilde, Arthur Alvim, São Miguel, Ermelino Matarazzo, São Mateus, Aricanduva, Sapopemba, Guaianases e Cidade Líder</div>
+            </div>
+
+            <div class="info-box" style="margin-top: 10px;">
+                <div class="info-title">OPORTUNIDADE REVISADA</div>
+                <div class="info-text">Mesmo com os novos dados, São Miguel, Guaianases e São Mateus ainda apresentam baixa densidade de concorrentes</div>
+            </div>
+        </div>
+
+        <div class="map" id="map"></div>
+    </div>
+
+    <script>
+        const suas_unidades = [
+            { fase: "F1", nome: "Paulista", lat: -23.5505, lng: -46.6561, custo: "R$ 80.5K", faturamento: "R$ 160K" },
+            { fase: "F1", nome: "Santo Amaro", lat: -23.6245, lng: -46.6561, custo: "R$ 71.5K", faturamento: "R$ 140K" },
+            { fase: "F1", nome: "Tatuapé", lat: -23.5305, lng: -46.5561, custo: "R$ 69.7K", faturamento: "R$ 135K" },
+            { fase: "F1", nome: "Lapa", lat: -23.5205, lng: -46.6861, custo: "R$ 64.7K", faturamento: "R$ 120K" },
+            { fase: "F2", nome: "Itaim Bibi", lat: -23.5889, lng: -46.6799, custo: "R$ 87.2K", faturamento: "R$ 200K" },
+            { fase: "F2", nome: "Mooca", lat: -23.5405, lng: -46.5561, custo: "R$ 64.8K", faturamento: "R$ 125K" },
+            { fase: "F2", nome: "Santana", lat: -23.4905, lng: -46.6161, custo: "R$ 65.5K", faturamento: "R$ 120K" },
+            { fase: "F2", nome: "Penha", lat: -23.5205, lng: -46.4861, custo: "R$ 57.8K", faturamento: "R$ 100K" },
+            { fase: "F2", nome: "Jabaquara", lat: -23.6145, lng: -46.5561, custo: "R$ 58.2K", faturamento: "R$ 95K" },
+            { fase: "F3", nome: "Berrini", lat: -23.5889, lng: -46.6799, custo: "R$ 80K", faturamento: "R$ 180K" },
+            { fase: "F3", nome: "Itaquera", lat: -23.5005, lng: -46.4261, custo: "R$ 52.7K", faturamento: "R$ 85K" },
+            { fase: "F3", nome: "Vila Maria", lat: -23.4705, lng: -46.5561, custo: "R$ 58.3K", faturamento: "R$ 110K" },
+            { fase: "F3", nome: "Pinheiros", lat: -23.5589, lng: -46.6989, custo: "R$ 71.5K", faturamento: "R$ 140K" },
+            { fase: "F3", nome: "Centro", lat: -23.5505, lng: -46.6361, custo: "R$ 58.2K", faturamento: "R$ 110K" },
+            { fase: "F3", nome: "Campo Limpo", lat: -23.6545, lng: -46.7561, custo: "R$ 52K", faturamento: "R$ 80K" },
+            { fase: "F4", nome: "Guarulhos", lat: -23.4605, lng: -46.4861, custo: "R$ 63.9K", faturamento: "R$ 130K" },
+            { fase: "F4", nome: "Osasco", lat: -23.5305, lng: -46.7961, custo: "R$ 59.1K", faturamento: "R$ 110K" },
+            { fase: "F4", nome: "São Bernardo", lat: -23.6945, lng: -46.5661, custo: "R$ 65.6K", faturamento: "R$ 140K" },
+            { fase: "F4", nome: "Alphaville", lat: -23.5705, lng: -46.8561, custo: "R$ 69.9K", faturamento: "R$ 150K" },
+        ];
+
+        // Concorrentes originais (Centro/Oeste/Sul)
+        const concorrentes_originais = [
+            { nome: "Care Plus", tipo: "Premium", lat: -23.5505, lng: -46.6561, regiao: "centro" },
+            { nome: "Engemed", tipo: "Especializado", lat: -23.5515, lng: -46.6371, regiao: "centro" },
+            { nome: "Paromed", tipo: "Especializado", lat: -23.4805, lng: -46.6161, regiao: "centro" },
+            { nome: "Setrab Group", tipo: "Especializado", lat: -23.5525, lng: -46.6551, regiao: "centro" },
+            { nome: "CONAME", tipo: "Híbrido", lat: -23.5495, lng: -46.6371, regiao: "centro" },
+            { nome: "SSW Medicina", tipo: "Especializado", lat: -23.6245, lng: -46.6561, regiao: "centro" },
+            { nome: "Labormesp", tipo: "Especializado", lat: -23.5305, lng: -46.4561, regiao: "leste" },
+            { nome: "SMT Serviço", tipo: "Tradicional", lat: -23.5515, lng: -46.6351, regiao: "centro" },
+            { nome: "WJR Segurança", tipo: "Médio Porte", lat: -23.5305, lng: -46.7561, regiao: "centro" },
+            { nome: "MediClass", tipo: "Médio Porte", lat: -23.6255, lng: -46.6551, regiao: "centro" },
+            { nome: "Athuar Medicina", tipo: "Médio Porte", lat: -23.5315, lng: -46.4551, regiao: "leste" },
+            { nome: "GraalSeg", tipo: "Médio Porte", lat: -23.4815, lng: -46.6151, regiao: "centro" },
+            { nome: "MESO Saúde", tipo: "Especializado", lat: -23.5515, lng: -46.6571, regiao: "centro" },
+            { nome: "Premium Saúde", tipo: "Premium", lat: -23.6235, lng: -46.6571, regiao: "centro" },
+            { nome: "Line Medicina", tipo: "Médio Porte", lat: -23.5515, lng: -46.6371, regiao: "centro" },
+            { nome: "RGP Engenharia", tipo: "Especializado", lat: -23.5315, lng: -46.4571, regiao: "leste" },
+            { nome: "Âncora Saúde", tipo: "Premium", lat: -23.5495, lng: -46.6551, regiao: "centro" },
+            { nome: "PGRSP Segurança", tipo: "Especializado", lat: -23.4815, lng: -46.6171, regiao: "centro" },
+            { nome: "KS Treinamento", tipo: "Médio Porte", lat: -23.5525, lng: -46.6351, regiao: "centro" },
+            { nome: "PHO Consultoria", tipo: "Consultoria", lat: -23.6255, lng: -46.6541, regiao: "centro" },
+            { nome: "AlfaSeg", tipo: "Médio Porte", lat: -23.5315, lng: -46.7551, regiao: "centro" },
+            { nome: "Porto Seguro", tipo: "Segurador", lat: -23.5495, lng: -46.6571, regiao: "centro" },
+            { nome: "Contramed", tipo: "Especializado", lat: -23.5525, lng: -46.6361, regiao: "centro" },
+            { nome: "Grupo Moratti", tipo: "Médio Porte", lat: -23.5315, lng: -46.4541, regiao: "leste" },
+            { nome: "Rama Medicina", tipo: "Médio Porte", lat: -23.6235, lng: -46.6541, regiao: "centro" },
+            { nome: "Omini Saúde", tipo: "Médio Porte", lat: -23.5515, lng: -46.6351, regiao: "centro" },
+            { nome: "CMS Ocupacional", tipo: "Médio Porte", lat: -23.5315, lng: -46.7541, regiao: "centro" },
+            { nome: "CRP Medicina", tipo: "Médio Porte", lat: -23.5325, lng: -46.4561, regiao: "leste" },
+            { nome: "Ravim Saúde", tipo: "Médio Porte", lat: -23.5515, lng: -46.4351, regiao: "leste" },
+            { nome: "Ideia Medicina", tipo: "Especializado", lat: -23.4805, lng: -46.6171, regiao: "centro" },
+            { nome: "IG Segurança", tipo: "Especializado", lat: -23.5525, lng: -46.6371, regiao: "centro" },
+            { nome: "Safety Quest", tipo: "Especializado", lat: -23.5325, lng: -46.7551, regiao: "centro" },
+            { nome: "CL&M Saúde", tipo: "Médio Porte", lat: -23.6245, lng: -46.6541, regiao: "centro" },
+            { nome: "Cemed Ocupacional", tipo: "Médio Porte", lat: -23.5305, lng: -46.4551, regiao: "leste" },
+            { nome: "SES Saúde", tipo: "Médio Porte", lat: -23.5495, lng: -46.6361, regiao: "centro" },
+            { nome: "Clínica Abreu", tipo: "Tradicional", lat: -23.6255, lng: -46.6561, regiao: "centro" },
+            { nome: "Imasa Seguros", tipo: "Segurador", lat: -23.5515, lng: -46.6561, regiao: "centro" },
+            { nome: "Saúde Ocupacional Plus", tipo: "Médio Porte", lat: -23.4815, lng: -46.6161, regiao: "centro" },
+            { nome: "Medicina Preventiva", tipo: "Especializado", lat: -23.5495, lng: -46.6351, regiao: "centro" },
+            { nome: "Segurança Total", tipo: "Médio Porte", lat: -23.5325, lng: -46.7561, regiao: "centro" },
+            { nome: "Ocupacional Brasil", tipo: "Médio Porte", lat: -23.5315, lng: -46.4571, regiao: "leste" },
+        ];
+
+        // NOVOS concorrentes da Zona Leste (pesquisados e adicionados)
+        const concorrentes_zona_leste = [
+            { nome: "SanMedi Saúde e Segurança", tipo: "Especializado", lat: -23.5419, lng: -46.5745, regiao: "leste", bairro: "Tatuapé", novo: true },
+            { nome: "Macromed Medicina Ocupacional", tipo: "Especializado", lat: -23.5209, lng: -46.5463, regiao: "leste", bairro: "Penha", novo: true },
+            { nome: "D+ SAÚDE Medicina", tipo: "Médio Porte", lat: -23.5332, lng: -46.5786, regiao: "leste", bairro: "Tatuapé", novo: true },
+            { nome: "Pro Ocupacional Tatuapé", tipo: "Médio Porte", lat: -23.5243, lng: -46.5810, regiao: "leste", bairro: "Tatuapé", novo: true },
+            { nome: "QuallitSeg Assessoria", tipo: "Especializado", lat: -23.5253, lng: -46.5437, regiao: "leste", bairro: "Penha", novo: true },
+            { nome: "Grupo Previne Itaquera", tipo: "Médio Porte", lat: -23.5410, lng: -46.4555, regiao: "leste", bairro: "Itaquera", novo: true },
+            { nome: "Alpamed Engenharia", tipo: "Especializado", lat: -23.5445, lng: -46.5094, regiao: "leste", bairro: "Vila Matilde", novo: true },
+            { nome: "Clínica Monsenhor Ciro", tipo: "Tradicional", lat: -23.5277, lng: -46.5439, regiao: "leste", bairro: "Penha", novo: true },
+            { nome: "Grupo SOS Tatuapé", tipo: "Médio Porte", lat: -23.5385, lng: -46.5774, regiao: "leste", bairro: "Tatuapé", novo: true },
+            { nome: "AF Segurança Itaquera", tipo: "Médio Porte", lat: -23.5441, lng: -46.4525, regiao: "leste", bairro: "Itaquera", novo: true },
+            { nome: "A&L Assessoria Medicina", tipo: "Médio Porte", lat: -23.5302, lng: -46.5782, regiao: "leste", bairro: "Tatuapé", novo: true },
+            { nome: "Bettiati Saúde Ocupacional", tipo: "Especializado", lat: -23.5232, lng: -46.5315, regiao: "leste", bairro: "Penha", novo: true },
+            { nome: "Itamedi Saúde Ocupacional", tipo: "Especializado", lat: -23.5342, lng: -46.5797, regiao: "leste", bairro: "Tatuapé", novo: true },
+            { nome: "Pontual SST", tipo: "Especializado", lat: -23.6167, lng: -46.4714, regiao: "leste", bairro: "São Mateus", novo: true },
+            { nome: "Mais Prevenção", tipo: "Especializado", lat: -23.5552, lng: -46.5135, regiao: "leste", bairro: "Aricanduva", novo: true },
+            { nome: "My Doctor Medicina", tipo: "Médio Porte", lat: -23.5198, lng: -46.5399, regiao: "leste", bairro: "Penha", novo: true },
+            { nome: "ISO Saúde Ocupacional", tipo: "Especializado", lat: -23.5278, lng: -46.5361, regiao: "leste", bairro: "Penha", novo: true },
+            { nome: "Neobiowork Medicina", tipo: "Médio Porte", lat: -23.5402, lng: -46.4754, regiao: "leste", bairro: "Arthur Alvim", novo: true },
+            { nome: "PrevMed São Miguel", tipo: "Médio Porte", lat: -23.4913, lng: -46.4402, regiao: "leste", bairro: "São Miguel", novo: true },
+            { nome: "Semework Medicina", tipo: "Médio Porte", lat: -23.4739, lng: -46.4692, regiao: "leste", bairro: "Ermelino Matarazzo", novo: true },
+            { nome: "Neoformar Medicina", tipo: "Médio Porte", lat: -23.6163, lng: -46.4705, regiao: "leste", bairro: "São Mateus", novo: true },
+            { nome: "MCI Vitta Medicina", tipo: "Especializado", lat: -23.5619, lng: -46.4705, regiao: "leste", bairro: "Cidade Líder", novo: true },
+            { nome: "CEDUSP Tatuapé", tipo: "Premium", lat: -23.5357, lng: -46.5759, regiao: "leste", bairro: "Tatuapé", novo: true },
+            { nome: "Evydence Medicina", tipo: "Especializado", lat: -23.5908, lng: -46.5136, regiao: "leste", bairro: "Sapopemba", novo: true },
+            { nome: "Access Segurança", tipo: "Médio Porte", lat: -23.5378, lng: -46.4145, regiao: "leste", bairro: "Guaianases", novo: true },
+        ];
+
+        // Combinar todos os concorrentes
+        const concorrentes = [...concorrentes_originais, ...concorrentes_zona_leste];
+
+        let map;
+        let markers = [];
+
+        function initMap() {
+            map = L.map('map').setView([-23.5505, -46.5561], 11);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 19
+            }).addTo(map);
+
+            updateMarkers();
+
+            document.getElementById('showCompetitors').addEventListener('change', updateMarkers);
+            document.getElementById('showNewOnly').addEventListener('change', updateMarkers);
+            document.getElementById('phaseFilter').addEventListener('change', updateMarkers);
+            document.getElementById('regionFilter').addEventListener('change', updateMarkers);
+        }
+
+        function updateMarkers() {
+            markers.forEach(m => map.removeLayer(m));
+            markers = [];
+
+            const showComp = document.getElementById('showCompetitors').checked;
+            const showNewOnly = document.getElementById('showNewOnly').checked;
+            const phase = document.getElementById('phaseFilter').value;
+            const region = document.getElementById('regionFilter').value;
+
+            // Contadores
+            let unitCount = 0;
+            let compCount = 0;
+
+            suas_unidades.forEach(unit => {
+                if (phase && unit.fase !== phase) return;
+                unitCount++;
+                
+                const marker = L.circleMarker([unit.lat, unit.lng], {
+                    radius: 8,
+                    fillColor: '#3B82F6',
+                    color: '#1E40AF',
+                    weight: 2,
+                    opacity: 1,
+                    fillOpacity: 0.8
+                }).addTo(map);
+
+                marker.bindPopup(`
+                    <strong>${unit.nome}</strong><br/>
+                    Fase: ${unit.fase}<br/>
+                    Custo: ${unit.custo}<br/>
+                    Faturamento: ${unit.faturamento}
+                `);
+                markers.push(marker);
+            });
+
+            if (showComp) {
+                concorrentes.forEach(comp => {
+                    // Filtro de região
+                    if (region && comp.regiao !== region) return;
+                    // Filtro de novos apenas
+                    if (showNewOnly && !comp.novo) return;
+
+                    compCount++;
+
+                    const isNew = comp.novo;
+                    const fillColor = isNew ? '#F97316' : '#EF4444';
+                    const borderColor = isNew ? '#C2410C' : '#991B1B';
+                    const radius = isNew ? 7 : 6;
+
+                    const marker = L.circleMarker([comp.lat, comp.lng], {
+                        radius: radius,
+                        fillColor: fillColor,
+                        color: borderColor,
+                        weight: 2,
+                        opacity: 1,
+                        fillOpacity: 0.7
+                    }).addTo(map);
+
+                    let popupContent = `<strong>${comp.nome}</strong><br/>Tipo: ${comp.tipo || 'Médio Porte'}`;
+                    if (comp.bairro) {
+                        popupContent += `<br/>Bairro: ${comp.bairro}`;
+                    }
+                    if (isNew) {
+                        popupContent += `<br/><em style="color: #F97316;">Novo - Zona Leste</em>`;
+                    }
+
+                    marker.bindPopup(popupContent);
+                    markers.push(marker);
+                });
+            }
+
+            document.getElementById('compCount').textContent = (showNewOnly ? compCount : concorrentes.length) + '+';
+        }
+
+        window.addEventListener('load', initMap);
+    </script>
+</body>
+</html>
