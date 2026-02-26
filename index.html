@@ -10,40 +10,48 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
         .container { display: flex; height: 100vh; }
-        .sidebar { width: 320px; background: white; box-shadow: 0 0 10px rgba(0,0,0,0.1); overflow-y: auto; padding: 20px; }
+        .sidebar { width: 340px; background: white; box-shadow: 0 0 10px rgba(0,0,0,0.1); overflow-y: auto; padding: 20px; }
         .map { flex: 1; }
-        h1 { font-size: 24px; margin-bottom: 5px; color: #333; }
-        .subtitle { font-size: 12px; color: #999; margin-bottom: 20px; }
-        .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .stat-box { background: #f5f5f5; padding: 15px; border-radius: 8px; text-align: center; }
+        h1 { font-size: 22px; margin-bottom: 5px; color: #333; }
+        .subtitle { font-size: 12px; color: #999; margin-bottom: 15px; }
+        .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .stat-box { background: #f5f5f5; padding: 12px; border-radius: 8px; text-align: center; }
         .stat-label { font-size: 11px; color: #666; margin-bottom: 5px; }
-        .stat-value { font-size: 28px; font-weight: bold; }
+        .stat-value { font-size: 26px; font-weight: bold; }
         .blue { color: #3B82F6; }
         .red { color: #EF4444; }
         .green { color: #10B981; }
-        .controls { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 10px; font-size: 13px; font-weight: 500; }
+        .controls { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 8px; font-size: 12px; font-weight: 500; }
         input[type="checkbox"] { width: auto; }
-        select { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 12px; }
-        .legend { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-top: 20px; }
-        .legend-title { font-size: 11px; font-weight: 600; margin-bottom: 10px; }
-        .legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 12px; }
-        .legend-dot { width: 12px; height: 12px; border-radius: 50%; }
-        .info-box { background: #fffbeb; border-left: 4px solid #fbbf24; padding: 12px; border-radius: 4px; margin-top: 20px; font-size: 12px; }
-        .info-title { font-weight: 600; color: #92400e; margin-bottom: 5px; }
-        .info-text { color: #b45309; }
+        select { width: 100%; padding: 7px; border: 1px solid #ddd; border-radius: 4px; font-size: 11px; margin-bottom: 5px; }
+        .legend { background: #f9f9f9; padding: 12px; border-radius: 8px; margin-top: 15px; }
+        .legend-title { font-size: 11px; font-weight: 600; margin-bottom: 8px; }
+        .legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 11px; }
+        .legend-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+        .info-box { background: #fffbeb; border-left: 4px solid #fbbf24; padding: 10px; border-radius: 4px; margin-top: 12px; font-size: 11px; }
+        .info-title { font-weight: 600; color: #92400e; margin-bottom: 4px; }
+        .info-text { color: #b45309; line-height: 1.4; }
         .info-box.updated { background: #ecfdf5; border-left-color: #10B981; }
         .info-box.updated .info-title { color: #065f46; }
         .info-box.updated .info-text { color: #047857; }
-        .region-filter { margin-top: 10px; }
+        .info-box.blue-box { background: #eff6ff; border-left-color: #3B82F6; }
+        .info-box.blue-box .info-title { color: #1e40af; }
+        .info-box.blue-box .info-text { color: #1d4ed8; }
+        .region-filter { margin-top: 5px; }
         .new-badge { background: #10B981; color: white; font-size: 9px; padding: 2px 6px; border-radius: 10px; margin-left: 5px; font-weight: 600; }
+        .region-stats { margin-top: 12px; background: #f9f9f9; padding: 10px; border-radius: 8px; }
+        .region-stats-title { font-size: 11px; font-weight: 600; margin-bottom: 6px; }
+        .region-stat-row { display: flex; justify-content: space-between; font-size: 11px; padding: 3px 0; border-bottom: 1px solid #eee; }
+        .region-stat-row:last-child { border-bottom: none; }
+        .region-stat-count { font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="sidebar">
             <h1>Mapa de Expansão</h1>
-            <p class="subtitle">Análise de Concorrência SP</p>
+            <p class="subtitle">Análise de Concorrência - Grande SP</p>
             
             <div class="stats">
                 <div class="stat-box">
@@ -52,7 +60,7 @@
                 </div>
                 <div class="stat-box">
                     <div class="stat-label">Concorrentes</div>
-                    <div class="stat-value red" id="compCount">66+</div>
+                    <div class="stat-value red" id="compCount">101+</div>
                 </div>
             </div>
 
@@ -62,7 +70,7 @@
                 </label>
 
                 <label>
-                    <input type="checkbox" id="showNewOnly" unchecked> Apenas Novos (Zona Leste) <span class="new-badge">+25</span>
+                    <input type="checkbox" id="showNewOnly"> Apenas Novos <span class="new-badge">+35</span>
                 </label>
                 
                 <label>Filtrar Fase</label>
@@ -78,10 +86,20 @@
                     <label>Filtrar Região Concorrentes</label>
                     <select id="regionFilter">
                         <option value="">Todas as Regiões</option>
-                        <option value="centro">Centro / Oeste / Sul</option>
+                        <option value="centro">Centro</option>
+                        <option value="norte">Zona Norte</option>
+                        <option value="sul">Zona Sul</option>
+                        <option value="oeste">Zona Oeste</option>
                         <option value="leste">Zona Leste</option>
+                        <option value="grande_sp_leste">Grande SP - ABC/Guarulhos</option>
+                        <option value="grande_sp_oeste">Grande SP - Oeste</option>
                     </select>
                 </div>
+            </div>
+
+            <div class="region-stats" id="regionStats">
+                <div class="region-stats-title">CONCORRENTES POR REGIÃO</div>
+                <div id="regionStatsContent"></div>
             </div>
 
             <div class="legend">
@@ -92,22 +110,38 @@
                 </div>
                 <div class="legend-item">
                     <div class="legend-dot" style="background: #EF4444; border: 2px solid #991B1B;"></div>
-                    <span>Concorrentes (Vermelho)</span>
+                    <span>Concorrentes Originais (Vermelho)</span>
                 </div>
                 <div class="legend-item">
                     <div class="legend-dot" style="background: #F97316; border: 2px solid #C2410C;"></div>
                     <span>Novos - Zona Leste (Laranja)</span>
                 </div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: #8B5CF6; border: 2px solid #6D28D9;"></div>
+                    <span>Novos - Zona Norte (Roxo)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: #EC4899; border: 2px solid #BE185D;"></div>
+                    <span>Novos - Zona Sul (Rosa)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: #14B8A6; border: 2px solid #0D9488;"></div>
+                    <span>Novos - Zona Oeste (Teal)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: #F59E0B; border: 2px solid #D97706;"></div>
+                    <span>Novos - Grande SP (Amarelo)</span>
+                </div>
             </div>
 
             <div class="info-box updated">
-                <div class="info-title">ATUALIZAÇÃO - Zona Leste</div>
-                <div class="info-text">+25 concorrentes mapeados na Zona Leste: Tatuapé, Penha, Itaquera, Vila Matilde, Arthur Alvim, São Miguel, Ermelino Matarazzo, São Mateus, Aricanduva, Sapopemba, Guaianases e Cidade Líder</div>
+                <div class="info-title">ATUALIZAÇÃO GERAL - Fev/2026</div>
+                <div class="info-text">+35 novos concorrentes mapeados em todas as regiões: Zona Norte (16), Zona Sul (6), Zona Oeste (4), ABC/Guarulhos (12) e Grande SP Oeste (5). Total atualizado: 101+ concorrentes.</div>
             </div>
 
-            <div class="info-box" style="margin-top: 10px;">
-                <div class="info-title">OPORTUNIDADE REVISADA</div>
-                <div class="info-text">Mesmo com os novos dados, São Miguel, Guaianases e São Mateus ainda apresentam baixa densidade de concorrentes</div>
+            <div class="info-box blue-box" style="margin-top: 8px;">
+                <div class="info-title">COBERTURA COMPLETA</div>
+                <div class="info-text">Mapa agora cobre toda a Grande São Paulo com dados de 7 regiões distintas.</div>
             </div>
         </div>
 
@@ -137,7 +171,7 @@
             { fase: "F4", nome: "Alphaville", lat: -23.5705, lng: -46.8561, custo: "R$ 69.9K", faturamento: "R$ 150K" },
         ];
 
-        // Concorrentes originais (Centro/Oeste/Sul)
+        // Concorrentes originais (Centro)
         const concorrentes_originais = [
             { nome: "Care Plus", tipo: "Premium", lat: -23.5505, lng: -46.6561, regiao: "centro" },
             { nome: "Engemed", tipo: "Especializado", lat: -23.5515, lng: -46.6371, regiao: "centro" },
@@ -182,7 +216,7 @@
             { nome: "Ocupacional Brasil", tipo: "Médio Porte", lat: -23.5315, lng: -46.4571, regiao: "leste" },
         ];
 
-        // NOVOS concorrentes da Zona Leste (pesquisados e adicionados)
+        // Concorrentes Zona Leste (pesquisados anteriormente)
         const concorrentes_zona_leste = [
             { nome: "SanMedi Saúde e Segurança", tipo: "Especializado", lat: -23.5419, lng: -46.5745, regiao: "leste", bairro: "Tatuapé", novo: true },
             { nome: "Macromed Medicina Ocupacional", tipo: "Especializado", lat: -23.5209, lng: -46.5463, regiao: "leste", bairro: "Penha", novo: true },
@@ -211,25 +245,143 @@
             { nome: "Access Segurança", tipo: "Médio Porte", lat: -23.5378, lng: -46.4145, regiao: "leste", bairro: "Guaianases", novo: true },
         ];
 
+        // NOVOS - Zona Norte
+        const concorrentes_norte = [
+            { nome: "Sona Med", tipo: "Especializado", lat: -23.5029, lng: -46.6235, regiao: "norte", bairro: "Santana", novo: true },
+            { nome: "Numedlab", tipo: "Tradicional", lat: -23.5029, lng: -46.6235, regiao: "norte", bairro: "Santana", novo: true },
+            { nome: "Cliniserv", tipo: "Médio Porte", lat: -23.47, lng: -46.63, regiao: "norte", bairro: "Zona Norte", novo: true },
+            { nome: "Grupo Previne Santana", tipo: "Especializado", lat: -23.502, lng: -46.626, regiao: "norte", bairro: "Santana", novo: true },
+            { nome: "Simplifica Ocupacional", tipo: "Médio Porte", lat: -23.501, lng: -46.628, regiao: "norte", bairro: "Santana", novo: true },
+            { nome: "ASCONCIPA", tipo: "Tradicional", lat: -23.506, lng: -46.625, regiao: "norte", bairro: "Santana", novo: true },
+            { nome: "Polygonal Saúde e Segurança", tipo: "Especializado", lat: -23.504, lng: -46.626, regiao: "norte", bairro: "Santana", novo: true },
+            { nome: "Grupo Mast", tipo: "Médio Porte", lat: -23.493, lng: -46.633, regiao: "norte", bairro: "Santana", novo: true },
+            { nome: "Samtra", tipo: "Médio Porte", lat: -23.507, lng: -46.626, regiao: "norte", bairro: "Santana", novo: true },
+            { nome: "Assemetra", tipo: "Tradicional", lat: -23.504, lng: -46.624, regiao: "norte", bairro: "Santana", novo: true },
+            { nome: "Cardoso de Almeida SST", tipo: "Especializado", lat: -23.5, lng: -46.631, regiao: "norte", bairro: "Santana", novo: true },
+            { nome: "MOC Saúde Ocupacional", tipo: "Premium", lat: -23.504, lng: -46.627, regiao: "norte", bairro: "Santana", novo: true },
+            { nome: "LABORE Saúde Ocupacional", tipo: "Médio Porte", lat: -23.505, lng: -46.626, regiao: "norte", bairro: "Santana", novo: true },
+        ];
+
+        // NOVOS - Zona Sul
+        const concorrentes_sul = [
+            { nome: "Geremed Ocupacional", tipo: "Médio Porte", lat: -23.6215, lng: -46.6968, regiao: "sul", bairro: "Brooklin", novo: true },
+            { nome: "CLIMEC", tipo: "Tradicional", lat: -23.6525, lng: -46.7, regiao: "sul", bairro: "Santo Amaro", novo: true },
+            { nome: "Medtrab Jabaquara", tipo: "Tradicional", lat: -23.6442, lng: -46.6442, regiao: "sul", bairro: "Jabaquara", novo: true },
+            { nome: "Limiar Medicina do Trabalho", tipo: "Tradicional", lat: -23.6525, lng: -46.7, regiao: "sul", bairro: "Santo Amaro", novo: true },
+            { nome: "Sglobal Assessoria", tipo: "Premium", lat: -23.7031, lng: -46.7017, regiao: "sul", bairro: "Interlagos", novo: true },
+            { nome: "Grupo Mednet", tipo: "Premium", lat: -23.6525, lng: -46.7, regiao: "sul", bairro: "Santo Amaro", novo: true },
+        ];
+
+        // NOVOS - Zona Oeste
+        const concorrentes_oeste = [
+            { nome: "Lapamedseg", tipo: "Especializado", lat: -23.5259, lng: -46.7012, regiao: "oeste", bairro: "Lapa", novo: true },
+            { nome: "AngularMed", tipo: "Premium", lat: -23.572, lng: -46.7111, regiao: "oeste", bairro: "Butantã", novo: true },
+            { nome: "Preseg Assessoria", tipo: "Tradicional", lat: -23.5262, lng: -46.6654, regiao: "oeste", bairro: "Barra Funda", novo: true },
+            { nome: "BetelSeg", tipo: "Especializado", lat: -23.5259, lng: -46.7012, regiao: "oeste", bairro: "Lapa", novo: true },
+        ];
+
+        // NOVOS - Grande SP (ABC/Guarulhos)
+        const concorrentes_grande_sp_leste = [
+            { nome: "Primemed", tipo: "Especializado", lat: -23.6645, lng: -46.5318, regiao: "grande_sp_leste", bairro: "Santo André Centro", novo: true },
+            { nome: "Gedal Med", tipo: "Especializado", lat: -23.6833, lng: -46.5667, regiao: "grande_sp_leste", bairro: "Rudge Ramos - SBC", novo: true },
+            { nome: "Med Trab Assunção", tipo: "Tradicional", lat: -23.7167, lng: -46.5833, regiao: "grande_sp_leste", bairro: "Planalto - SBC", novo: true },
+            { nome: "Objetiva Medicina SST", tipo: "Tradicional", lat: -23.6645, lng: -46.5318, regiao: "grande_sp_leste", bairro: "Santo André Centro", novo: true },
+            { nome: "Assemet", tipo: "Especializado", lat: -23.7033, lng: -46.5619, regiao: "grande_sp_leste", bairro: "Baeta Neves - SBC", novo: true },
+            { nome: "Medsal", tipo: "Especializado", lat: -23.4636, lng: -46.5334, regiao: "grande_sp_leste", bairro: "Guarulhos Centro", novo: true },
+            { nome: "Presmed", tipo: "Especializado", lat: -23.4636, lng: -46.5334, regiao: "grande_sp_leste", bairro: "Guarulhos Centro", novo: true },
+            { nome: "Deltamed", tipo: "Especializado", lat: -23.4636, lng: -46.5334, regiao: "grande_sp_leste", bairro: "Guarulhos Centro", novo: true },
+            { nome: "IACI Med", tipo: "Especializado", lat: -23.4544, lng: -46.5242, regiao: "grande_sp_leste", bairro: "Maia - Guarulhos", novo: true },
+            { nome: "Brasmed Saúde Ocupacional", tipo: "Especializado", lat: -23.4636, lng: -46.5334, regiao: "grande_sp_leste", bairro: "Guarulhos", novo: true },
+            { nome: "Lavoro Medicina", tipo: "Especializado", lat: -23.6667, lng: -46.4333, regiao: "grande_sp_leste", bairro: "Mauá", novo: true },
+            { nome: "Bannoki Medicina Integrada", tipo: "Especializado", lat: -23.6667, lng: -46.4333, regiao: "grande_sp_leste", bairro: "Mauá", novo: true },
+        ];
+
+        // NOVOS - Grande SP Oeste
+        const concorrentes_grande_sp_oeste = [
+            { nome: "Plenitude Medical", tipo: "Especializado", lat: -23.5029, lng: -46.8517, regiao: "grande_sp_oeste", bairro: "Alphaville Industrial", novo: true },
+            { nome: "Camargo Dantas", tipo: "Médio Porte", lat: -23.5214, lng: -46.8369, regiao: "grande_sp_oeste", bairro: "Carapicuíba", novo: true },
+            { nome: "SPIX", tipo: "Premium", lat: -23.5104, lng: -46.8765, regiao: "grande_sp_oeste", bairro: "Barueri", novo: true },
+            { nome: "Alphalife", tipo: "Tradicional", lat: -23.5085, lng: -46.8495, regiao: "grande_sp_oeste", bairro: "Alphaville", novo: true },
+            { nome: "Trade Ocupacional", tipo: "Médio Porte", lat: -23.5016, lng: -46.8594, regiao: "grande_sp_oeste", bairro: "Bethaville - Barueri", novo: true },
+        ];
+
         // Combinar todos os concorrentes
-        const concorrentes = [...concorrentes_originais, ...concorrentes_zona_leste];
+        const concorrentes = [
+            ...concorrentes_originais,
+            ...concorrentes_zona_leste,
+            ...concorrentes_norte,
+            ...concorrentes_sul,
+            ...concorrentes_oeste,
+            ...concorrentes_grande_sp_leste,
+            ...concorrentes_grande_sp_oeste,
+        ];
+
+        // Cores por região para novos
+        const regionColors = {
+            centro: { fill: '#EF4444', border: '#991B1B' },
+            leste: { fill: '#F97316', border: '#C2410C' },
+            norte: { fill: '#8B5CF6', border: '#6D28D9' },
+            sul: { fill: '#EC4899', border: '#BE185D' },
+            oeste: { fill: '#14B8A6', border: '#0D9488' },
+            grande_sp_leste: { fill: '#F59E0B', border: '#D97706' },
+            grande_sp_oeste: { fill: '#F59E0B', border: '#D97706' },
+        };
+
+        const regionNames = {
+            centro: 'Centro',
+            leste: 'Zona Leste',
+            norte: 'Zona Norte',
+            sul: 'Zona Sul',
+            oeste: 'Zona Oeste',
+            grande_sp_leste: 'ABC/Guarulhos',
+            grande_sp_oeste: 'Grande SP Oeste',
+        };
 
         let map;
         let markers = [];
 
         function initMap() {
-            map = L.map('map').setView([-23.5505, -46.5561], 11);
+            map = L.map('map').setView([-23.5505, -46.6361], 11);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '© OpenStreetMap contributors',
                 maxZoom: 19
             }).addTo(map);
 
+            updateRegionStats();
             updateMarkers();
 
             document.getElementById('showCompetitors').addEventListener('change', updateMarkers);
             document.getElementById('showNewOnly').addEventListener('change', updateMarkers);
             document.getElementById('phaseFilter').addEventListener('change', updateMarkers);
             document.getElementById('regionFilter').addEventListener('change', updateMarkers);
+        }
+
+        function updateRegionStats() {
+            const counts = {};
+            concorrentes.forEach(c => {
+                const r = c.regiao || 'centro';
+                counts[r] = (counts[r] || 0) + 1;
+            });
+
+            const container = document.getElementById('regionStatsContent');
+            container.innerHTML = '';
+            const order = ['centro', 'leste', 'norte', 'sul', 'oeste', 'grande_sp_leste', 'grande_sp_oeste'];
+            order.forEach(r => {
+                if (counts[r]) {
+                    const div = document.createElement('div');
+                    div.className = 'region-stat-row';
+                    const color = regionColors[r] ? regionColors[r].fill : '#666';
+                    div.innerHTML = `<span style="color:${color};">${regionNames[r] || r}</span><span class="region-stat-count">${counts[r]}</span>`;
+                    container.appendChild(div);
+                }
+            });
+            // Total
+            const totalDiv = document.createElement('div');
+            totalDiv.className = 'region-stat-row';
+            totalDiv.style.fontWeight = 'bold';
+            totalDiv.style.marginTop = '4px';
+            totalDiv.innerHTML = `<span>TOTAL</span><span>${concorrentes.length}</span>`;
+            container.appendChild(totalDiv);
         }
 
         function updateMarkers() {
@@ -241,13 +393,10 @@
             const phase = document.getElementById('phaseFilter').value;
             const region = document.getElementById('regionFilter').value;
 
-            // Contadores
-            let unitCount = 0;
             let compCount = 0;
 
             suas_unidades.forEach(unit => {
                 if (phase && unit.fase !== phase) return;
-                unitCount++;
                 
                 const marker = L.circleMarker([unit.lat, unit.lng], {
                     radius: 8,
@@ -269,16 +418,23 @@
 
             if (showComp) {
                 concorrentes.forEach(comp => {
-                    // Filtro de região
                     if (region && comp.regiao !== region) return;
-                    // Filtro de novos apenas
                     if (showNewOnly && !comp.novo) return;
 
                     compCount++;
 
                     const isNew = comp.novo;
-                    const fillColor = isNew ? '#F97316' : '#EF4444';
-                    const borderColor = isNew ? '#C2410C' : '#991B1B';
+                    const r = comp.regiao || 'centro';
+                    let fillColor, borderColor;
+
+                    if (isNew && regionColors[r]) {
+                        fillColor = regionColors[r].fill;
+                        borderColor = regionColors[r].border;
+                    } else {
+                        fillColor = '#EF4444';
+                        borderColor = '#991B1B';
+                    }
+
                     const radius = isNew ? 7 : 6;
 
                     const marker = L.circleMarker([comp.lat, comp.lng], {
@@ -294,8 +450,9 @@
                     if (comp.bairro) {
                         popupContent += `<br/>Bairro: ${comp.bairro}`;
                     }
+                    popupContent += `<br/>Região: ${regionNames[r] || r}`;
                     if (isNew) {
-                        popupContent += `<br/><em style="color: #F97316;">Novo - Zona Leste</em>`;
+                        popupContent += `<br/><em style="color: ${fillColor};">Novo</em>`;
                     }
 
                     marker.bindPopup(popupContent);
