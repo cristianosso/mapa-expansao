@@ -10,7 +10,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
         .container { display: flex; height: 100vh; }
-        .sidebar { width: 340px; background: white; box-shadow: 0 0 10px rgba(0,0,0,0.1); overflow-y: auto; padding: 20px; }
+        .sidebar { width: 360px; background: white; box-shadow: 0 0 10px rgba(0,0,0,0.1); overflow-y: auto; padding: 20px; }
         .map { flex: 1; }
         h1 { font-size: 22px; margin-bottom: 5px; color: #333; }
         .subtitle { font-size: 12px; color: #999; margin-bottom: 15px; }
@@ -39,19 +39,20 @@
         .info-box.blue-box .info-title { color: #1e40af; }
         .info-box.blue-box .info-text { color: #1d4ed8; }
         .region-filter { margin-top: 5px; }
-        .new-badge { background: #10B981; color: white; font-size: 9px; padding: 2px 6px; border-radius: 10px; margin-left: 5px; font-weight: 600; }
         .region-stats { margin-top: 12px; background: #f9f9f9; padding: 10px; border-radius: 8px; }
         .region-stats-title { font-size: 11px; font-weight: 600; margin-bottom: 6px; }
         .region-stat-row { display: flex; justify-content: space-between; font-size: 11px; padding: 3px 0; border-bottom: 1px solid #eee; }
         .region-stat-row:last-child { border-bottom: none; }
         .region-stat-count { font-weight: bold; }
+        .search-box { margin-bottom: 10px; }
+        .search-box input { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 12px; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="sidebar">
             <h1>Mapa de Expansão</h1>
-            <p class="subtitle">Análise de Concorrência - Grande SP</p>
+            <p class="subtitle">Análise de Concorrência - Medicina do Trabalho - Grande SP</p>
             
             <div class="stats">
                 <div class="stat-box">
@@ -60,20 +61,20 @@
                 </div>
                 <div class="stat-box">
                     <div class="stat-label">Concorrentes</div>
-                    <div class="stat-value red" id="compCount">140+</div>
+                    <div class="stat-value red" id="compCount">127</div>
                 </div>
+            </div>
+
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Buscar clínica por nome..." oninput="updateMarkers()">
             </div>
 
             <div class="controls">
                 <label>
                     <input type="checkbox" id="showCompetitors" checked> Mostrar Concorrentes
                 </label>
-
-                <label>
-                    <input type="checkbox" id="showNewOnly"> Apenas Novos <span class="new-badge">+74</span>
-                </label>
                 
-                <label>Filtrar Fase</label>
+                <label>Filtrar Fase (Suas Unidades)</label>
                 <select id="phaseFilter">
                     <option value="">Todas as Fases</option>
                     <option value="F1">F1 - Âncora</option>
@@ -86,13 +87,12 @@
                     <label>Filtrar Região Concorrentes</label>
                     <select id="regionFilter">
                         <option value="">Todas as Regiões</option>
-                        <option value="centro">Centro</option>
-                        <option value="norte">Zona Norte</option>
-                        <option value="sul">Zona Sul</option>
-                        <option value="oeste">Zona Oeste</option>
-                        <option value="leste">Zona Leste</option>
-                        <option value="grande_sp_leste">Grande SP - ABC/Guarulhos</option>
-                        <option value="grande_sp_oeste">Grande SP - Oeste</option>
+                        <option value="centro">SP - Centro</option>
+                        <option value="norte">SP - Zona Norte</option>
+                        <option value="sul">SP - Zona Sul</option>
+                        <option value="oeste">SP - Zona Oeste</option>
+                        <option value="leste">SP - Zona Leste</option>
+                        <option value="grande_sp">Grande SP (ABC, Guarulhos, Osasco...)</option>
                     </select>
                 </div>
             </div>
@@ -110,38 +110,38 @@
                 </div>
                 <div class="legend-item">
                     <div class="legend-dot" style="background: #EF4444; border: 2px solid #991B1B;"></div>
-                    <span>Concorrentes Originais (Vermelho)</span>
+                    <span>SP - Centro (Vermelho)</span>
                 </div>
                 <div class="legend-item">
                     <div class="legend-dot" style="background: #F97316; border: 2px solid #C2410C;"></div>
-                    <span>Novos - Zona Leste (Laranja)</span>
+                    <span>SP - Zona Leste (Laranja)</span>
                 </div>
                 <div class="legend-item">
                     <div class="legend-dot" style="background: #8B5CF6; border: 2px solid #6D28D9;"></div>
-                    <span>Novos - Zona Norte (Roxo)</span>
+                    <span>SP - Zona Norte (Roxo)</span>
                 </div>
                 <div class="legend-item">
                     <div class="legend-dot" style="background: #EC4899; border: 2px solid #BE185D;"></div>
-                    <span>Novos - Zona Sul (Rosa)</span>
+                    <span>SP - Zona Sul (Rosa)</span>
                 </div>
                 <div class="legend-item">
                     <div class="legend-dot" style="background: #14B8A6; border: 2px solid #0D9488;"></div>
-                    <span>Novos - Zona Oeste (Teal)</span>
+                    <span>SP - Zona Oeste (Teal)</span>
                 </div>
                 <div class="legend-item">
                     <div class="legend-dot" style="background: #F59E0B; border: 2px solid #D97706;"></div>
-                    <span>Novos - Grande SP (Amarelo)</span>
+                    <span>Grande SP (Amarelo)</span>
                 </div>
             </div>
 
             <div class="info-box updated">
-                <div class="info-title">ATUALIZAÇÃO GERAL - Fev/2026</div>
-                <div class="info-text">+74 novos concorrentes mapeados em todas as regiões: Zona Leste +14 (Mooca, Vila Prudente, Ipiranga), Zona Sul +25 (Vila Mariana, Paraíso, Moema, Aclimação), Zona Norte (13), Zona Oeste (4), ABC/Guarulhos (12) e Grande SP Oeste (5). Total atualizado: 140+ concorrentes.</div>
+                <div class="info-title">REVISÃO COMPLETA - Fev/2026</div>
+                <div class="info-text">Mapa revisado com 127 clínicas de medicina do trabalho verificadas no Google Maps. Cobertura: SP Capital (Centro, Zona Norte, Sul, Leste, Oeste) + Grande SP (Guarulhos, ABC, Osasco, Barueri, Taboão, Embu, Cotia, Diadema e mais).</div>
             </div>
 
             <div class="info-box blue-box" style="margin-top: 8px;">
-                <div class="info-title">COBERTURA COMPLETA</div>
-                <div class="info-text">Mapa agora cobre toda a Grande São Paulo com dados de 7 regiões distintas. Inclui mapeamento detalhado da Mooca, Vila Prudente, Vila Mariana, Paraíso, Moema e Aclimação.</div>
+                <div class="info-title">DADOS VERIFICADOS</div>
+                <div class="info-text">Apenas clínicas especializadas em medicina do trabalho / medicina ocupacional. Hospitais, laboratórios gerais e clínicas de outras especialidades foram removidos.</div>
             </div>
         </div>
 
@@ -171,211 +171,152 @@
             { fase: "F4", nome: "Alphaville", lat: -23.5705, lng: -46.8561, custo: "R$ 69.9K", faturamento: "R$ 150K" },
         ];
 
-        // Concorrentes originais (Centro)
-        const concorrentes_originais = [
-            { nome: "Care Plus", tipo: "Premium", lat: -23.5505, lng: -46.6561, regiao: "centro" },
-            { nome: "Engemed", tipo: "Especializado", lat: -23.5515, lng: -46.6371, regiao: "centro" },
-            { nome: "Paromed", tipo: "Especializado", lat: -23.4805, lng: -46.6161, regiao: "centro" },
-            { nome: "Setrab Group", tipo: "Especializado", lat: -23.5525, lng: -46.6551, regiao: "centro" },
-            { nome: "CONAME", tipo: "Híbrido", lat: -23.5495, lng: -46.6371, regiao: "centro" },
-            { nome: "SSW Medicina", tipo: "Especializado", lat: -23.6245, lng: -46.6561, regiao: "centro" },
-            { nome: "Labormesp", tipo: "Especializado", lat: -23.5305, lng: -46.4561, regiao: "leste" },
-            { nome: "SMT Serviço", tipo: "Tradicional", lat: -23.5515, lng: -46.6351, regiao: "centro" },
-            { nome: "WJR Segurança", tipo: "Médio Porte", lat: -23.5305, lng: -46.7561, regiao: "centro" },
-            { nome: "MediClass", tipo: "Médio Porte", lat: -23.6255, lng: -46.6551, regiao: "centro" },
-            { nome: "Athuar Medicina", tipo: "Médio Porte", lat: -23.5315, lng: -46.4551, regiao: "leste" },
-            { nome: "GraalSeg", tipo: "Médio Porte", lat: -23.4815, lng: -46.6151, regiao: "centro" },
-            { nome: "MESO Saúde", tipo: "Especializado", lat: -23.5515, lng: -46.6571, regiao: "centro" },
-            { nome: "Premium Saúde", tipo: "Premium", lat: -23.6235, lng: -46.6571, regiao: "centro" },
-            { nome: "Line Medicina", tipo: "Médio Porte", lat: -23.5515, lng: -46.6371, regiao: "centro" },
-            { nome: "RGP Engenharia", tipo: "Especializado", lat: -23.5315, lng: -46.4571, regiao: "leste" },
-            { nome: "Âncora Saúde", tipo: "Premium", lat: -23.5495, lng: -46.6551, regiao: "centro" },
-            { nome: "PGRSP Segurança", tipo: "Especializado", lat: -23.4815, lng: -46.6171, regiao: "centro" },
-            { nome: "KS Treinamento", tipo: "Médio Porte", lat: -23.5525, lng: -46.6351, regiao: "centro" },
-            { nome: "PHO Consultoria", tipo: "Consultoria", lat: -23.6255, lng: -46.6541, regiao: "centro" },
-            { nome: "AlfaSeg", tipo: "Médio Porte", lat: -23.5315, lng: -46.7551, regiao: "centro" },
-            { nome: "Porto Seguro", tipo: "Segurador", lat: -23.5495, lng: -46.6571, regiao: "centro" },
-            { nome: "Contramed", tipo: "Especializado", lat: -23.5525, lng: -46.6361, regiao: "centro" },
-            { nome: "Grupo Moratti", tipo: "Médio Porte", lat: -23.5315, lng: -46.4541, regiao: "leste" },
-            { nome: "Rama Medicina", tipo: "Médio Porte", lat: -23.6235, lng: -46.6541, regiao: "centro" },
-            { nome: "Omini Saúde", tipo: "Médio Porte", lat: -23.5515, lng: -46.6351, regiao: "centro" },
-            { nome: "CMS Ocupacional", tipo: "Médio Porte", lat: -23.5315, lng: -46.7541, regiao: "centro" },
-            { nome: "CRP Medicina", tipo: "Médio Porte", lat: -23.5325, lng: -46.4561, regiao: "leste" },
-            { nome: "Ravim Saúde", tipo: "Médio Porte", lat: -23.5515, lng: -46.4351, regiao: "leste" },
-            { nome: "Ideia Medicina", tipo: "Especializado", lat: -23.4805, lng: -46.6171, regiao: "centro" },
-            { nome: "IG Segurança", tipo: "Especializado", lat: -23.5525, lng: -46.6371, regiao: "centro" },
-            { nome: "Safety Quest", tipo: "Especializado", lat: -23.5325, lng: -46.7551, regiao: "centro" },
-            { nome: "CL&M Saúde", tipo: "Médio Porte", lat: -23.6245, lng: -46.6541, regiao: "centro" },
-            { nome: "Cemed Ocupacional", tipo: "Médio Porte", lat: -23.5305, lng: -46.4551, regiao: "leste" },
-            { nome: "SES Saúde", tipo: "Médio Porte", lat: -23.5495, lng: -46.6361, regiao: "centro" },
-            { nome: "Clínica Abreu", tipo: "Tradicional", lat: -23.6255, lng: -46.6561, regiao: "centro" },
-            { nome: "Imasa Seguros", tipo: "Segurador", lat: -23.5515, lng: -46.6561, regiao: "centro" },
-            { nome: "Saúde Ocupacional Plus", tipo: "Médio Porte", lat: -23.4815, lng: -46.6161, regiao: "centro" },
-            { nome: "Medicina Preventiva", tipo: "Especializado", lat: -23.5495, lng: -46.6351, regiao: "centro" },
-            { nome: "Segurança Total", tipo: "Médio Porte", lat: -23.5325, lng: -46.7561, regiao: "centro" },
-            { nome: "Ocupacional Brasil", tipo: "Médio Porte", lat: -23.5315, lng: -46.4571, regiao: "leste" },
-        ];
-
-        // Concorrentes Zona Leste (pesquisados anteriormente)
-        const concorrentes_zona_leste = [
-            { nome: "SanMedi Saúde e Segurança", tipo: "Especializado", lat: -23.5419, lng: -46.5745, regiao: "leste", bairro: "Tatuapé", novo: true },
-            { nome: "Macromed Medicina Ocupacional", tipo: "Especializado", lat: -23.5209, lng: -46.5463, regiao: "leste", bairro: "Penha", novo: true },
-            { nome: "D+ SAÚDE Medicina", tipo: "Médio Porte", lat: -23.5332, lng: -46.5786, regiao: "leste", bairro: "Tatuapé", novo: true },
-            { nome: "Pro Ocupacional Tatuapé", tipo: "Médio Porte", lat: -23.5243, lng: -46.5810, regiao: "leste", bairro: "Tatuapé", novo: true },
-            { nome: "QuallitSeg Assessoria", tipo: "Especializado", lat: -23.5253, lng: -46.5437, regiao: "leste", bairro: "Penha", novo: true },
-            { nome: "Grupo Previne Itaquera", tipo: "Médio Porte", lat: -23.5410, lng: -46.4555, regiao: "leste", bairro: "Itaquera", novo: true },
-            { nome: "Alpamed Engenharia", tipo: "Especializado", lat: -23.5445, lng: -46.5094, regiao: "leste", bairro: "Vila Matilde", novo: true },
-            { nome: "Clínica Monsenhor Ciro", tipo: "Tradicional", lat: -23.5277, lng: -46.5439, regiao: "leste", bairro: "Penha", novo: true },
-            { nome: "Grupo SOS Tatuapé", tipo: "Médio Porte", lat: -23.5385, lng: -46.5774, regiao: "leste", bairro: "Tatuapé", novo: true },
-            { nome: "AF Segurança Itaquera", tipo: "Médio Porte", lat: -23.5441, lng: -46.4525, regiao: "leste", bairro: "Itaquera", novo: true },
-            { nome: "A&L Assessoria Medicina", tipo: "Médio Porte", lat: -23.5302, lng: -46.5782, regiao: "leste", bairro: "Tatuapé", novo: true },
-            { nome: "Bettiati Saúde Ocupacional", tipo: "Especializado", lat: -23.5232, lng: -46.5315, regiao: "leste", bairro: "Penha", novo: true },
-            { nome: "Itamedi Saúde Ocupacional", tipo: "Especializado", lat: -23.5342, lng: -46.5797, regiao: "leste", bairro: "Tatuapé", novo: true },
-            { nome: "Pontual SST", tipo: "Especializado", lat: -23.6167, lng: -46.4714, regiao: "leste", bairro: "São Mateus", novo: true },
-            { nome: "Mais Prevenção", tipo: "Especializado", lat: -23.5552, lng: -46.5135, regiao: "leste", bairro: "Aricanduva", novo: true },
-            { nome: "My Doctor Medicina", tipo: "Médio Porte", lat: -23.5198, lng: -46.5399, regiao: "leste", bairro: "Penha", novo: true },
-            { nome: "ISO Saúde Ocupacional", tipo: "Especializado", lat: -23.5278, lng: -46.5361, regiao: "leste", bairro: "Penha", novo: true },
-            { nome: "Neobiowork Medicina", tipo: "Médio Porte", lat: -23.5402, lng: -46.4754, regiao: "leste", bairro: "Arthur Alvim", novo: true },
-            { nome: "PrevMed São Miguel", tipo: "Médio Porte", lat: -23.4913, lng: -46.4402, regiao: "leste", bairro: "São Miguel", novo: true },
-            { nome: "Semework Medicina", tipo: "Médio Porte", lat: -23.4739, lng: -46.4692, regiao: "leste", bairro: "Ermelino Matarazzo", novo: true },
-            { nome: "Neoformar Medicina", tipo: "Médio Porte", lat: -23.6163, lng: -46.4705, regiao: "leste", bairro: "São Mateus", novo: true },
-            { nome: "MCI Vitta Medicina", tipo: "Especializado", lat: -23.5619, lng: -46.4705, regiao: "leste", bairro: "Cidade Líder", novo: true },
-            { nome: "CEDUSP Tatuapé", tipo: "Premium", lat: -23.5357, lng: -46.5759, regiao: "leste", bairro: "Tatuapé", novo: true },
-            { nome: "Evydence Medicina", tipo: "Especializado", lat: -23.5908, lng: -46.5136, regiao: "leste", bairro: "Sapopemba", novo: true },
-            { nome: "Access Segurança", tipo: "Médio Porte", lat: -23.5378, lng: -46.4145, regiao: "leste", bairro: "Guaianases", novo: true },
-            // NOVOS - Mooca, Vila Prudente, Ipiranga (pesquisa Fev/2026)
-            { nome: "Next Ocupacional", tipo: "Especializado", lat: -23.5465, lng: -46.5920, regiao: "leste", bairro: "Mooca", novo: true },
-            { nome: "VIP Occupational Health", tipo: "Especializado", lat: -23.5830, lng: -46.5780, regiao: "leste", bairro: "Vila Prudente", novo: true },
-            { nome: "OC Med Medicina Ocupacional", tipo: "Médio Porte", lat: -23.5485, lng: -46.5850, regiao: "leste", bairro: "Mooca", novo: true },
-            { nome: "STARLIFE Medicina e Segurança", tipo: "Médio Porte", lat: -23.5510, lng: -46.5870, regiao: "leste", bairro: "Mooca", novo: true },
-            { nome: "RM Medicina e Segurança", tipo: "Médio Porte", lat: -23.5495, lng: -46.5905, regiao: "leste", bairro: "Mooca", novo: true },
-            { nome: "Metromed Medicina Ocupacional", tipo: "Especializado", lat: -23.5440, lng: -46.5960, regiao: "leste", bairro: "Mooca", novo: true },
-            { nome: "DOC Medicina e Segurança", tipo: "Médio Porte", lat: -23.5520, lng: -46.5830, regiao: "leste", bairro: "Mooca", novo: true },
-            { nome: "Med Labo Work", tipo: "Especializado", lat: -23.5855, lng: -46.5755, regiao: "leste", bairro: "Vila Prudente", novo: true },
-            { nome: "Ultramed Medicina e Segurança", tipo: "Especializado", lat: -23.5810, lng: -46.5790, regiao: "leste", bairro: "Vila Prudente", novo: true },
-            { nome: "Prosperiun Medicina Ocupacional", tipo: "Especializado", lat: -23.5850, lng: -46.5760, regiao: "leste", bairro: "Vila Prudente", novo: true },
-            { nome: "Lismed Medicina e Segurança", tipo: "Médio Porte", lat: -23.5880, lng: -46.5720, regiao: "leste", bairro: "Vila Prudente", novo: true },
-            { nome: "CRST Sudeste Mooca", tipo: "Público", lat: -23.5475, lng: -46.5940, regiao: "leste", bairro: "Mooca", novo: true },
-            { nome: "CDB Medical Diagnostics", tipo: "Premium", lat: -23.5500, lng: -46.5880, regiao: "leste", bairro: "Mooca", novo: true },
-            { nome: "Delboni Mooca", tipo: "Premium", lat: -23.5460, lng: -46.5950, regiao: "leste", bairro: "Mooca", novo: true },
-        ];
-
-        // NOVOS - Zona Norte
-        const concorrentes_norte = [
-            { nome: "Sona Med", tipo: "Especializado", lat: -23.5029, lng: -46.6235, regiao: "norte", bairro: "Santana", novo: true },
-            { nome: "Numedlab", tipo: "Tradicional", lat: -23.5029, lng: -46.6235, regiao: "norte", bairro: "Santana", novo: true },
-            { nome: "Cliniserv", tipo: "Médio Porte", lat: -23.47, lng: -46.63, regiao: "norte", bairro: "Zona Norte", novo: true },
-            { nome: "Grupo Previne Santana", tipo: "Especializado", lat: -23.502, lng: -46.626, regiao: "norte", bairro: "Santana", novo: true },
-            { nome: "Simplifica Ocupacional", tipo: "Médio Porte", lat: -23.501, lng: -46.628, regiao: "norte", bairro: "Santana", novo: true },
-            { nome: "ASCONCIPA", tipo: "Tradicional", lat: -23.506, lng: -46.625, regiao: "norte", bairro: "Santana", novo: true },
-            { nome: "Polygonal Saúde e Segurança", tipo: "Especializado", lat: -23.504, lng: -46.626, regiao: "norte", bairro: "Santana", novo: true },
-            { nome: "Grupo Mast", tipo: "Médio Porte", lat: -23.493, lng: -46.633, regiao: "norte", bairro: "Santana", novo: true },
-            { nome: "Samtra", tipo: "Médio Porte", lat: -23.507, lng: -46.626, regiao: "norte", bairro: "Santana", novo: true },
-            { nome: "Assemetra", tipo: "Tradicional", lat: -23.504, lng: -46.624, regiao: "norte", bairro: "Santana", novo: true },
-            { nome: "Cardoso de Almeida SST", tipo: "Especializado", lat: -23.5, lng: -46.631, regiao: "norte", bairro: "Santana", novo: true },
-            { nome: "MOC Saúde Ocupacional", tipo: "Premium", lat: -23.504, lng: -46.627, regiao: "norte", bairro: "Santana", novo: true },
-            { nome: "LABORE Saúde Ocupacional", tipo: "Médio Porte", lat: -23.505, lng: -46.626, regiao: "norte", bairro: "Santana", novo: true },
-        ];
-
-        // NOVOS - Zona Sul
-        const concorrentes_sul = [
-            { nome: "Geremed Ocupacional", tipo: "Médio Porte", lat: -23.6215, lng: -46.6968, regiao: "sul", bairro: "Brooklin", novo: true },
-            { nome: "CLIMEC", tipo: "Tradicional", lat: -23.6525, lng: -46.7, regiao: "sul", bairro: "Santo Amaro", novo: true },
-            { nome: "Medtrab Jabaquara", tipo: "Tradicional", lat: -23.6442, lng: -46.6442, regiao: "sul", bairro: "Jabaquara", novo: true },
-            { nome: "Limiar Medicina do Trabalho", tipo: "Tradicional", lat: -23.6525, lng: -46.7, regiao: "sul", bairro: "Santo Amaro", novo: true },
-            { nome: "Sglobal Assessoria", tipo: "Premium", lat: -23.7031, lng: -46.7017, regiao: "sul", bairro: "Interlagos", novo: true },
-            { nome: "Grupo Mednet", tipo: "Premium", lat: -23.6525, lng: -46.7, regiao: "sul", bairro: "Santo Amaro", novo: true },
-            // NOVOS - Vila Mariana, Paraíso, Moema, Aclimação, Ipiranga (pesquisa Fev/2026)
-            { nome: "GAMPMED Medicina e Segurança", tipo: "Premium", lat: -23.5710, lng: -46.6380, regiao: "sul", bairro: "Aclimação", novo: true },
-            { nome: "MESO Medicina e Segurança", tipo: "Especializado", lat: -23.5780, lng: -46.6400, regiao: "sul", bairro: "Vila Mariana", novo: true },
-            { nome: "Paromed Medicina e Segurança", tipo: "Especializado", lat: -23.5770, lng: -46.6390, regiao: "sul", bairro: "Vila Mariana", novo: true },
-            { nome: "Moema Assessoria Medicina", tipo: "Especializado", lat: -23.6010, lng: -46.6680, regiao: "sul", bairro: "Moema", novo: true },
-            { nome: "Mepan Assessoria Medicina", tipo: "Especializado", lat: -23.5775, lng: -46.6395, regiao: "sul", bairro: "Vila Mariana", novo: true },
-            { nome: "Delta Saúde Assessoria", tipo: "Médio Porte", lat: -23.5760, lng: -46.6420, regiao: "sul", bairro: "Vila Mariana", novo: true },
-            { nome: "Medicine SST", tipo: "Especializado", lat: -23.6020, lng: -46.6690, regiao: "sul", bairro: "Moema", novo: true },
-            { nome: "Unidade Médica Assistencial", tipo: "Médio Porte", lat: -23.5890, lng: -46.6530, regiao: "sul", bairro: "Vila Mariana", novo: true },
-            { nome: "Setrab Group Vila Mariana", tipo: "Especializado", lat: -23.5800, lng: -46.6370, regiao: "sul", bairro: "Vila Mariana", novo: true },
-            { nome: "Healthwork Medical Work", tipo: "Premium", lat: -23.5785, lng: -46.6405, regiao: "sul", bairro: "Vila Mariana", novo: true },
-            { nome: "Casmed Segurança e Medicina", tipo: "Médio Porte", lat: -23.5730, lng: -46.6370, regiao: "sul", bairro: "Paraíso", novo: true },
-            { nome: "VitalPrev Saúde Ocupacional", tipo: "Especializado", lat: -23.5870, lng: -46.5850, regiao: "sul", bairro: "Ipiranga", novo: true },
-            { nome: "MEDNET Santa Cruz", tipo: "Especializado", lat: -23.5990, lng: -46.6380, regiao: "sul", bairro: "Vila Mariana", novo: true },
-            { nome: "Medtal Medicina do Trabalho", tipo: "Médio Porte", lat: -23.5920, lng: -46.6360, regiao: "sul", bairro: "Vila Mariana", novo: true },
-            { nome: "Examed Medicina do Trabalho", tipo: "Médio Porte", lat: -23.5810, lng: -46.6350, regiao: "sul", bairro: "Vila Mariana", novo: true },
-            { nome: "TRASMED Centro Diagnósticos", tipo: "Especializado", lat: -23.5770, lng: -46.6410, regiao: "sul", bairro: "Vila Mariana", novo: true },
-            { nome: "SAFETY Consultoria Ocupacional", tipo: "Médio Porte", lat: -23.5650, lng: -46.6430, regiao: "sul", bairro: "Paraíso", novo: true },
-            { nome: "GRUPO ZOE Medicina Ocupacional", tipo: "Médio Porte", lat: -23.5655, lng: -46.6435, regiao: "sul", bairro: "Paraíso", novo: true },
-            { nome: "SJR BRASIL Clínica Ocupacional", tipo: "Premium", lat: -23.5630, lng: -46.6540, regiao: "sul", bairro: "Paraíso", novo: true },
-            { nome: "Acesso Ocupacional", tipo: "Médio Porte", lat: -23.5790, lng: -46.6380, regiao: "sul", bairro: "Vila Mariana", novo: true },
-            { nome: "Revisão Medicina Ocupacional", tipo: "Especializado", lat: -23.5680, lng: -46.6450, regiao: "sul", bairro: "Paraíso", novo: true },
-            { nome: "Pulsar Medicina e Segurança", tipo: "Médio Porte", lat: -23.5830, lng: -46.6360, regiao: "sul", bairro: "Vila Mariana", novo: true },
-            { nome: "Montanha Med SST", tipo: "Médio Porte", lat: -23.6030, lng: -46.6700, regiao: "sul", bairro: "Moema", novo: true },
-            { nome: "Moderna Medicina Empresarial", tipo: "Médio Porte", lat: -23.6000, lng: -46.6710, regiao: "sul", bairro: "Moema", novo: true },
-            { nome: "Geremed Ocupacional Moema", tipo: "Premium", lat: -23.5950, lng: -46.6650, regiao: "sul", bairro: "Moema", novo: true },
-        ];
-
-        // NOVOS - Zona Oeste
-        const concorrentes_oeste = [
-            { nome: "Lapamedseg", tipo: "Especializado", lat: -23.5259, lng: -46.7012, regiao: "oeste", bairro: "Lapa", novo: true },
-            { nome: "AngularMed", tipo: "Premium", lat: -23.572, lng: -46.7111, regiao: "oeste", bairro: "Butantã", novo: true },
-            { nome: "Preseg Assessoria", tipo: "Tradicional", lat: -23.5262, lng: -46.6654, regiao: "oeste", bairro: "Barra Funda", novo: true },
-            { nome: "BetelSeg", tipo: "Especializado", lat: -23.5259, lng: -46.7012, regiao: "oeste", bairro: "Lapa", novo: true },
-        ];
-
-        // NOVOS - Grande SP (ABC/Guarulhos)
-        const concorrentes_grande_sp_leste = [
-            { nome: "Primemed", tipo: "Especializado", lat: -23.6645, lng: -46.5318, regiao: "grande_sp_leste", bairro: "Santo André Centro", novo: true },
-            { nome: "Gedal Med", tipo: "Especializado", lat: -23.6833, lng: -46.5667, regiao: "grande_sp_leste", bairro: "Rudge Ramos - SBC", novo: true },
-            { nome: "Med Trab Assunção", tipo: "Tradicional", lat: -23.7167, lng: -46.5833, regiao: "grande_sp_leste", bairro: "Planalto - SBC", novo: true },
-            { nome: "Objetiva Medicina SST", tipo: "Tradicional", lat: -23.6645, lng: -46.5318, regiao: "grande_sp_leste", bairro: "Santo André Centro", novo: true },
-            { nome: "Assemet", tipo: "Especializado", lat: -23.7033, lng: -46.5619, regiao: "grande_sp_leste", bairro: "Baeta Neves - SBC", novo: true },
-            { nome: "Medsal", tipo: "Especializado", lat: -23.4636, lng: -46.5334, regiao: "grande_sp_leste", bairro: "Guarulhos Centro", novo: true },
-            { nome: "Presmed", tipo: "Especializado", lat: -23.4636, lng: -46.5334, regiao: "grande_sp_leste", bairro: "Guarulhos Centro", novo: true },
-            { nome: "Deltamed", tipo: "Especializado", lat: -23.4636, lng: -46.5334, regiao: "grande_sp_leste", bairro: "Guarulhos Centro", novo: true },
-            { nome: "IACI Med", tipo: "Especializado", lat: -23.4544, lng: -46.5242, regiao: "grande_sp_leste", bairro: "Maia - Guarulhos", novo: true },
-            { nome: "Brasmed Saúde Ocupacional", tipo: "Especializado", lat: -23.4636, lng: -46.5334, regiao: "grande_sp_leste", bairro: "Guarulhos", novo: true },
-            { nome: "Lavoro Medicina", tipo: "Especializado", lat: -23.6667, lng: -46.4333, regiao: "grande_sp_leste", bairro: "Mauá", novo: true },
-            { nome: "Bannoki Medicina Integrada", tipo: "Especializado", lat: -23.6667, lng: -46.4333, regiao: "grande_sp_leste", bairro: "Mauá", novo: true },
-        ];
-
-        // NOVOS - Grande SP Oeste
-        const concorrentes_grande_sp_oeste = [
-            { nome: "Plenitude Medical", tipo: "Especializado", lat: -23.5029, lng: -46.8517, regiao: "grande_sp_oeste", bairro: "Alphaville Industrial", novo: true },
-            { nome: "Camargo Dantas", tipo: "Médio Porte", lat: -23.5214, lng: -46.8369, regiao: "grande_sp_oeste", bairro: "Carapicuíba", novo: true },
-            { nome: "SPIX", tipo: "Premium", lat: -23.5104, lng: -46.8765, regiao: "grande_sp_oeste", bairro: "Barueri", novo: true },
-            { nome: "Alphalife", tipo: "Tradicional", lat: -23.5085, lng: -46.8495, regiao: "grande_sp_oeste", bairro: "Alphaville", novo: true },
-            { nome: "Trade Ocupacional", tipo: "Médio Porte", lat: -23.5016, lng: -46.8594, regiao: "grande_sp_oeste", bairro: "Bethaville - Barueri", novo: true },
-        ];
-
-        // Combinar todos os concorrentes
         const concorrentes = [
-            ...concorrentes_originais,
-            ...concorrentes_zona_leste,
-            ...concorrentes_norte,
-            ...concorrentes_sul,
-            ...concorrentes_oeste,
-            ...concorrentes_grande_sp_leste,
-            ...concorrentes_grande_sp_oeste,
+            { nome: "Lili Medicina do Trabalho", bairro: "Sé", cidade: "São Paulo", lat: -23.5506507, lng: -46.6333824, regiao: "centro" },
+            { nome: "BC Work Medicina Ocupacional", bairro: "184", cidade: "Centro", lat: -23.4691692, lng: -46.5277406, regiao: "centro" },
+            { nome: "Iso - Saúde Ocupacional", bairro: "Centro", cidade: "São Paulo", lat: -23.5458336, lng: -46.6391632, regiao: "centro" },
+            { nome: "SJR Brasil", bairro: "Bela Vista", cidade: "São Paulo", lat: -23.5643368, lng: -46.6528472, regiao: "centro" },
+            { nome: "Master Gestão Em Saude Ocupacional", bairro: "38", cidade: "Centro", lat: -23.6863182, lng: -46.6274711, regiao: "grande_sp" },
+            { nome: "Clinica Médica Aurea", bairro: "54", cidade: "Rudge Ramos", lat: -23.6682265, lng: -46.567228, regiao: "grande_sp" },
+            { nome: "PCM Medicina Ocupacional e Segurança do Trabalho: Unidade São Bernardo do Campo", bairro: "278", cidade: "Jardim do Mar", lat: -23.6943111, lng: -46.5551306, regiao: "grande_sp" },
+            { nome: "MedTrab Assunção - Clínica de Medicina e Segurança do Trabalho", bairro: "3758", cidade: "Assunção", lat: -23.7234086, lng: -46.5745753, regiao: "grande_sp" },
+            { nome: "MEDNET São Bernardo do Campo/SP - Medicina e Segurança do Trabalho", bairro: "112", cidade: "Jardim do Mar", lat: -23.6943111, lng: -46.5551306, regiao: "grande_sp" },
+            { nome: "Asonet Ocupacional - Unidade de Atendimento São Bernardo do Campo", bairro: "730", cidade: "Jardim do Mar", lat: -23.6929709, lng: -46.556066, regiao: "grande_sp" },
+            { nome: "Objetiva Medicina e Segurança do Trabalho", bairro: "1499", cidade: "Centro", lat: -23.689368, lng: -46.616315, regiao: "grande_sp" },
+            { nome: "GedalMed - Medicina Ocupacional", bairro: "3394", cidade: "Rudge Ramos", lat: -23.6655455, lng: -46.569043, regiao: "grande_sp" },
+            { nome: "Amo Assessoria em Medicina Ocupacional", bairro: "26", cidade: "Jardim do Mar", lat: -23.6921366, lng: -46.5559862, regiao: "grande_sp" },
+            { nome: "Altha Advice on Medical and Safety Ltd.", bairro: "207", cidade: "Centro", lat: -23.7047853, lng: -46.5588961, regiao: "grande_sp" },
+            { nome: "MEDNET Diadema/SP - Medicina e Segurança do Trabalho", bairro: "401", cidade: "Centro", lat: -23.6841529, lng: -46.6066774, regiao: "grande_sp" },
+            { nome: "Diamed Saúde Ocupacional", bairro: "15", cidade: "Centro", lat: -23.6869803, lng: -46.6219975, regiao: "grande_sp" },
+            { nome: "Med Prev Assis Médica Asses em Medicina Trabalho", bairro: "15", cidade: "Centro", lat: -23.6869803, lng: -46.6219975, regiao: "grande_sp" },
+            { nome: "MEDNET Osasco/SP - Medicina e Segurança do Trabalho", bairro: "Centro", cidade: "Osasco", lat: -23.4754256, lng: -46.7773735, regiao: "grande_sp" },
+            { nome: "SEG Saúde Ocupacional", bairro: "Centro", cidade: "Osasco", lat: -23.4754256, lng: -46.7773735, regiao: "grande_sp" },
+            { nome: "Uni Segurança e Medicina do Trabalho", bairro: "Centro", cidade: "Osasco", lat: -23.4754256, lng: -46.7773735, regiao: "grande_sp" },
+            { nome: "GMEDSE - Gestão em Medicina e Segurança do Trabalho", bairro: "Centro", cidade: "Osasco", lat: -23.4754256, lng: -46.7773735, regiao: "grande_sp" },
+            { nome: "Setrab Group - Unidade Osasco", bairro: "Centro", cidade: "Osasco", lat: -23.4754256, lng: -46.7773735, regiao: "grande_sp" },
+            { nome: "Clínica Dra. Dinorah", bairro: "Centro", cidade: "Osasco", lat: -23.4754256, lng: -46.7773735, regiao: "grande_sp" },
+            { nome: "Predict Medical Center and Diagnostic Ltda", bairro: "Centro", cidade: "Osasco", lat: -23.4754256, lng: -46.7773735, regiao: "grande_sp" },
+            { nome: "Goldmed Medicina e Segurança do Trabalho - Osasco", bairro: "Centro", cidade: "Osasco", lat: -23.4754256, lng: -46.7773735, regiao: "grande_sp" },
+            { nome: "Artrab Osasco", bairro: "Centro", cidade: "Osasco", lat: -23.4754256, lng: -46.7773735, regiao: "grande_sp" },
+            { nome: "COMO medicina ocupacional", bairro: "Centro", cidade: "Osasco", lat: -23.4754256, lng: -46.7773735, regiao: "grande_sp" },
+            { nome: "Camargo Dantas Medicina e Segurança do Trabalho", bairro: "Centro", cidade: "Carapicuíba", lat: -23.5234523, lng: -46.8348105, regiao: "grande_sp" },
+            { nome: "Occupational Medicine Center and Safety", bairro: "Centro", cidade: "Carapicuíba", lat: -23.5264727, lng: -46.8356734, regiao: "grande_sp" },
+            { nome: "Mevmed Gestão Ocupacional", bairro: "Centro", cidade: "Carapicuíba", lat: -23.5264727, lng: -46.8356734, regiao: "grande_sp" },
+            { nome: "Meseg Seguranca do Trabalho", bairro: "Centro", cidade: "Carapicuíba", lat: -23.5264727, lng: -46.8356734, regiao: "grande_sp" },
+            { nome: "Healthwork", bairro: "363 - Cj 67", cidade: "Centro", lat: -23.6140517, lng: -46.569091, regiao: "grande_sp" },
+            { nome: "Grupo Mednet", bairro: "Nº 70", cidade: "SANTA PAULA", lat: -23.6163705, lng: -46.5679506, regiao: "grande_sp" },
+            { nome: "Stilo Segurança e Medicina do Trabalho", bairro: "185", cidade: "Centro Alto", lat: -23.7136321, lng: -46.4183775, regiao: "grande_sp" },
+            { nome: "Alamed", bairro: "117", cidade: "Centro", lat: -23.7170696, lng: -46.4104745, regiao: "grande_sp" },
+            { nome: "Clínica Próspera | Medicina & Segurança do Trabalho I 01 Cotia", bairro: "Centro", cidade: "Cotia", lat: -23.60533, lng: -46.92011, regiao: "grande_sp" },
+            { nome: "CMO - Centro de Medicina Ocupacional", bairro: "Parque Bahia", cidade: "Cotia", lat: -23.60533, lng: -46.92011, regiao: "grande_sp" },
+            { nome: "BM Medicina do Trabalho Ltda", bairro: "105", cidade: "Centro", lat: -23.5999988, lng: -46.7635899, regiao: "grande_sp" },
+            { nome: "Camargo Dantas Clínica de Saúde Ocupacional - Cotia", bairro: "833", cidade: "Vila Monte Serrat", lat: -23.608375, lng: -46.9211778, regiao: "grande_sp" },
+            { nome: "SEGURAMED", bairro: "111", cidade: "Centro", lat: -23.670448, lng: -46.4708377, regiao: "grande_sp" },
+            { nome: "My Doctor Medicina do Trabalho", bairro: "Penha", cidade: "São Paulo", lat: -23.523683, lng: -46.5437815, regiao: "leste" },
+            { nome: "CEDUSP", bairro: "Tatuapé", cidade: "São Paulo", lat: -23.5402524, lng: -46.5766424, regiao: "leste" },
+            { nome: "Next Ocupacional", bairro: "Mooca", cidade: "São Paulo", lat: -23.5606808, lng: -46.5971924, regiao: "leste" },
+            { nome: "Ultramed", bairro: "Vila Prudente", cidade: "São Paulo", lat: -23.5868367, lng: -46.5846413, regiao: "leste" },
+            { nome: "Geremed", bairro: "Vila Prudente", cidade: "São Paulo", lat: -23.5846609, lng: -46.5833457, regiao: "leste" },
+            { nome: "Setrab - Unidade Vila Mariana", bairro: "Vila Mariana", cidade: "São Paulo", lat: -23.5897089, lng: -46.6345233, regiao: "sul" },
+            { nome: "Central Med Saude", bairro: "Vila Mariana", cidade: "São Paulo", lat: -23.5791887, lng: -46.6399989, regiao: "sul" },
+            { nome: "UMA - Medicina e segurança do Trabalho", bairro: "Vila Mariana", cidade: "São Paulo", lat: -23.591572, lng: -46.6321999, regiao: "sul" },
+            { nome: "Asonet Ocupacional - Vila Mariana", bairro: "Vila Mariana", cidade: "São Paulo", lat: -23.5881941, lng: -46.6323349, regiao: "sul" },
+            { nome: "Paromed – Medicina e Segurança do Trabalho", bairro: "Paraíso", cidade: "São Paulo", lat: -23.5766882, lng: -46.641446, regiao: "sul" },
+            { nome: "Aclimed – Medicina do Trabalho", bairro: "Aclimação", cidade: "São Paulo", lat: -23.5760002, lng: -46.6262024, regiao: "sul" },
+            { nome: "Moema Assessoria", bairro: "Moema", cidade: "São Paulo", lat: -23.597085, lng: -46.6628884, regiao: "sul" },
+            { nome: "CMS Assessoria", bairro: "Moema", cidade: "São Paulo", lat: -23.597085, lng: -46.6628884, regiao: "sul" },
+            { nome: "CLIMEC", bairro: "Santo Amaro", cidade: "São Paulo", lat: -23.6562303, lng: -46.7191156, regiao: "sul" },
+            { nome: "CRK Medicina Ocupacional", bairro: "Moema", cidade: "São Paulo", lat: -23.597085, lng: -46.6628884, regiao: "sul" },
+            { nome: "ETIKZ Medicina e Seg. do Trabalho", bairro: "Vila Mariana", cidade: "São Paulo", lat: -23.5803633, lng: -46.6398169, regiao: "sul" },
+            { nome: "Clínica Master Medicina do Trabalho", bairro: "Brooklin", cidade: "São Paulo", lat: -23.6268017, lng: -46.6881279, regiao: "sul" },
+            { nome: "Clínica Medcorp", bairro: "Brooklin", cidade: "São Paulo", lat: -23.6099689, lng: -46.6771785, regiao: "sul" },
+            { nome: "MSul Ocupacional", bairro: "Brooklin Paulista", cidade: "São Paulo", lat: -23.6294989, lng: -46.6736894, regiao: "sul" },
+            { nome: "GSST", bairro: "Campo Belo", cidade: "São Paulo", lat: -23.6299339, lng: -46.670417, regiao: "sul" },
+            { nome: "RPMED", bairro: "Campo Belo", cidade: "São Paulo", lat: -23.6299339, lng: -46.670417, regiao: "sul" },
+            { nome: "Almassessoria", bairro: "Campo Belo", cidade: "São Paulo", lat: -23.6299339, lng: -46.670417, regiao: "sul" },
+            { nome: "W FER MEDICINA DO TRABALHO", bairro: "Moema", cidade: "São Paulo", lat: -23.6078548, lng: -46.663132, regiao: "sul" },
+            { nome: "CLV Medicina e Segurança do Trabalho", bairro: "Santo Amaro", cidade: "São Paulo", lat: -23.6302105, lng: -46.6938976, regiao: "sul" },
+            { nome: "Medin", bairro: "Santo Amaro", cidade: "São Paulo", lat: -23.65269, lng: -46.7060021, regiao: "sul" },
+            { nome: "Limiar", bairro: "Santo Amaro", cidade: "São Paulo", lat: -23.6562303, lng: -46.7191156, regiao: "sul" },
+            { nome: "Conceitus MED", bairro: "Santo Amaro", cidade: "São Paulo", lat: -23.6330899, lng: -46.69071, regiao: "sul" },
+            { nome: "jfk soluções ocupacionais", bairro: "Santo Amaro", cidade: "São Paulo", lat: -23.6380537, lng: -46.6957977, regiao: "sul" },
+            { nome: "MTA - Médicos do Trabalho Associados", bairro: "Santo Amaro", cidade: "São Paulo", lat: -23.6476074, lng: -46.7073491, regiao: "sul" },
+            { nome: "MEDCORP MEDICINA DO TRABALHO", bairro: "Santo Amaro", cidade: "São Paulo", lat: -23.6361182, lng: -46.6956898, regiao: "sul" },
+            { nome: "Limiar - Medicina do Trabalho", bairro: "Santo Amaro", cidade: "São Paulo", lat: -23.6562303, lng: -46.7191156, regiao: "sul" },
+            { nome: "Central Documentos", bairro: "Santo Amaro", cidade: "São Paulo", lat: -23.6538686, lng: -46.7070141, regiao: "sul" },
+            { nome: "Labor Med - Medicina do Trabalho", bairro: "Jardim Aeroporto", cidade: "São Paulo", lat: -23.6345362, lng: -46.6683174, regiao: "sul" },
+            { nome: "GraalSeg", bairro: "Chácara Santo Antônio", cidade: "São Paulo", lat: -23.6302388, lng: -46.7039869, regiao: "sul" },
+            { nome: "Sonamed Medicina do Trabalho", bairro: "Santana", cidade: "São Paulo", lat: -23.5073306, lng: -46.6256108, regiao: "norte" },
+            { nome: "Grupo Previne - Unidade Santana", bairro: "Santana", cidade: "São Paulo", lat: -23.4998429, lng: -46.6218898, regiao: "norte" },
+            { nome: "LAVORATORI", bairro: "Lauzane Paulista", cidade: "São Paulo", lat: -23.4713573, lng: -46.6445383, regiao: "norte" },
+            { nome: "Allmed", bairro: "89", cidade: "Vila Anastácio", lat: -23.5150183, lng: -46.7186734, regiao: "oeste" },
+            { nome: "Setrab", bairro: "120", cidade: "Vila Mariana", lat: -23.5897089, lng: -46.6345233, regiao: "oeste" },
+            { nome: "MMC Saúde", bairro: "417 - Cj. 23", cidade: "Pinheiros", lat: -23.5560043, lng: -46.6747606, regiao: "oeste" },
+            { nome: "Medicina Ocupacional na Lapa - Agimed", bairro: "220", cidade: "Lapa", lat: -23.5211614, lng: -46.7065937, regiao: "oeste" },
+            { nome: "Goldmed Medicine and Safety", bairro: "237", cidade: "Lapa", lat: -23.5206816, lng: -46.7056877, regiao: "oeste" },
+            { nome: "L&T Saúde Medicina do Trabalho", bairro: "150", cidade: "Lapa", lat: -23.5256124, lng: -46.7079886, regiao: "oeste" },
+            { nome: "MEDNET Lapa/SP - Medicina e Segurança do Trabalho", bairro: "180", cidade: "Lapa", lat: -23.5215838, lng: -46.7021946, regiao: "oeste" },
+            { nome: "Trabmed Medicina e Segurança do Trabalho", bairro: "300", cidade: "Lapa", lat: -23.5205076, lng: -46.7086218, regiao: "oeste" },
+            { nome: "KellsMed", bairro: "63", cidade: "Lapa", lat: -23.5190433, lng: -46.7035699, regiao: "oeste" },
+            { nome: "Topi Medicina Srguranca do Trabalho", bairro: "489", cidade: "Lapa", lat: -23.5217699, lng: -46.7074914, regiao: "oeste" },
+            { nome: "Unisest - Segurança E Medicina do Trabalho Ltda.", bairro: "180", cidade: "Lapa", lat: -23.5159912, lng: -46.7218499, regiao: "oeste" },
+            { nome: "PreverMed - Centro Médico e Diagnóstico", bairro: "155", cidade: "Lapa", lat: -23.5224282, lng: -46.7054913, regiao: "oeste" },
+            { nome: "Grupo Atlas Medicina e Segurança do Trabalho", bairro: "41", cidade: "Lapa", lat: -23.5185244, lng: -46.705894, regiao: "oeste" },
+            { nome: "Med Medicina e Segurança do Trabalho", bairro: "Pinheiros", cidade: "São Paulo", lat: -23.5705456, lng: -46.6966535, regiao: "oeste" },
+            { nome: "Spix Medicina Ocupacional", bairro: "Pinheiros", cidade: "São Paulo", lat: -23.567249, lng: -46.7019515, regiao: "oeste" },
+            { nome: "GBAM Health and Safety", bairro: "Pinheiros", cidade: "São Paulo", lat: -23.567249, lng: -46.7019515, regiao: "oeste" },
+            { nome: "Cemtra-Centro Empecizlizado em Medicina do Trabalho", bairro: "Pinheiros", cidade: "São Paulo", lat: -23.5556066, lng: -46.6742342, regiao: "oeste" },
+            { nome: "CIMEO - Centro Integrado de Medicina e Engenharia Ocupacional.", bairro: "Pinheiros", cidade: "São Paulo", lat: -23.567249, lng: -46.7019515, regiao: "oeste" },
+            { nome: "Work Care - Clínica de Medicina e Segurança do Trabalho em Pinheiros", bairro: "Pinheiros", cidade: "São Paulo", lat: -23.5608698, lng: -46.675898, regiao: "oeste" },
+            { nome: "Sarah Medicina do Trabalho", bairro: "Pinheiros", cidade: "São Paulo", lat: -23.567249, lng: -46.7019515, regiao: "oeste" },
+            { nome: "Salú", bairro: "Pinheiros", cidade: "São Paulo", lat: -23.5684714, lng: -46.6883131, regiao: "oeste" },
+            { nome: "RGP ENGENHARIA DE SEGURANÇA E MEDICINA OCUPACIONAL", bairro: "Pinheiros", cidade: "São Paulo", lat: -23.567249, lng: -46.7019515, regiao: "oeste" },
+            { nome: "Triagem Medicina do Trabalho - São Paulo", bairro: "273", cidade: "Pinheiros", lat: -23.5474237, lng: -46.6913282, regiao: "oeste" },
+            { nome: "AngularMed Medicina e Segurança do Trabalho", bairro: "Butantã", cidade: "São Paulo", lat: -23.5716433, lng: -46.70996, regiao: "oeste" },
+            { nome: "GRF Ocupacional", bairro: "Butantã", cidade: "São Paulo", lat: -23.5715997, lng: -46.7116182, regiao: "oeste" },
+            { nome: "Revi Medicina e Segurança do Trabalho", bairro: "Butantã", cidade: "São Paulo", lat: -23.5737434, lng: -46.7102643, regiao: "oeste" },
+            { nome: "Prime Gestão Ocupacional - Medicina e Segurança do Trabalho", bairro: "Barra Funda", cidade: "São Paulo", lat: -23.5254616, lng: -46.6675134, regiao: "oeste" },
+            { nome: "PRESEG - Segurança e Medicina do Trabalho - Unidade Barra Funda", bairro: "Barra Funda", cidade: "São Paulo", lat: -23.5213924, lng: -46.6603743, regiao: "oeste" },
+            { nome: "Centromedic Medicina do Trabalho e Segurança do Trabalho", bairro: "Barra Funda", cidade: "São Paulo", lat: -23.5296802, lng: -46.6630921, regiao: "oeste" },
+            { nome: "Grupo Bplan Saúde e Segurança do Trabalho - Barra Funda SP", bairro: "Barra Funda", cidade: "São Paulo", lat: -23.5254616, lng: -46.6675134, regiao: "oeste" },
+            { nome: "Medicina do trabalho", bairro: "Barra Funda", cidade: "São Paulo", lat: -23.5254616, lng: -46.6675134, regiao: "oeste" },
+            { nome: "Segmaxima Health and Safety at Work", bairro: "Barra Funda", cidade: "São Paulo", lat: -23.5254616, lng: -46.6675134, regiao: "oeste" },
+            { nome: "D2 Ocupacional - Excelência em Medicina do Trabalho", bairro: "Barra Funda", cidade: "São Paulo", lat: -23.5254616, lng: -46.6675134, regiao: "oeste" },
+            { nome: "Vida Ocupacional", bairro: "Barra Funda", cidade: "São Paulo", lat: -23.5254616, lng: -46.6675134, regiao: "oeste" },
+            { nome: "Promed LGA Assessoria Medicina do Trabalho", bairro: "Barra Funda", cidade: "São Paulo", lat: -23.5284617, lng: -46.6622618, regiao: "oeste" },
+            { nome: "Job Medical Advisory", bairro: "Barra Funda", cidade: "São Paulo", lat: -23.5276851, lng: -46.6628688, regiao: "oeste" },
+            { nome: "JCR Engenharia de Segurança do Trabalho", bairro: "Barra Funda", cidade: "São Paulo", lat: -23.5254616, lng: -46.6675134, regiao: "oeste" },
+            { nome: "GraalSeg (Zona Oeste) - SP | Atendimento Online e Presencial", bairro: "Barra Funda", cidade: "São Paulo", lat: -23.5254616, lng: -46.6675134, regiao: "oeste" },
+            { nome: "Deltamed Guarulhos - Medicina do Trabalho - Ortopedia - Psiquiatria", bairro: "", cidade: "Guarulhos", lat: -23.4659959, lng: -46.5276422, regiao: "grande_sp" },
+            { nome: "CLÍNICA DE SAÚDE OCUPACIONAL - SJR GUARULHOS", bairro: "", cidade: "Guarulhos", lat: -23.4688978, lng: -46.5251944, regiao: "grande_sp" },
+            { nome: "MSJ Medicina Ocupacional", bairro: "", cidade: "Guarulhos", lat: -23.4599905, lng: -46.5360086, regiao: "grande_sp" },
+            { nome: "PRESEG - Segurança e Medicina do Trabalho", bairro: "", cidade: "Guarulhos", lat: -23.4679586, lng: -46.524172, regiao: "grande_sp" },
+            { nome: "Setrab Group - Unidade Guarulhos", bairro: "", cidade: "Guarulhos", lat: -23.4659959, lng: -46.5276422, regiao: "grande_sp" },
+            { nome: "Medicina e Segurança do Trabalho Assessoria & Clínica Ocupacional", bairro: "", cidade: "Guarulhos", lat: -23.4464345, lng: -46.4096366, regiao: "grande_sp" },
+            { nome: "Total Health - Medical and Safety", bairro: "", cidade: "Guarulhos", lat: -23.4610919, lng: -46.529104, regiao: "grande_sp" },
+            { nome: "Control Med - Guarulhos", bairro: "", cidade: "Guarulhos", lat: -23.4679788, lng: -46.5319494, regiao: "grande_sp" },
+            { nome: "Medsal - Medicina e Segurança Ocupacional", bairro: "", cidade: "Guarulhos", lat: -23.4638374, lng: -46.531883, regiao: "grande_sp" },
+            { nome: "SEJANET", bairro: "228 – 17", cidade: "Centro", lat: -23.6562487, lng: -46.5267158, regiao: "grande_sp" },
+            { nome: "Work Medicina", bairro: "199", cidade: "Jardim", lat: -23.649457, lng: -46.5350912, regiao: "grande_sp" },
+            { nome: "Grupo Ana Rosa Saúde", bairro: "72", cidade: "Jardim", lat: -23.6544867, lng: -46.5357055, regiao: "grande_sp" }
         ];
 
-        // Cores por região para novos
         const regionColors = {
             centro: { fill: '#EF4444', border: '#991B1B' },
             leste: { fill: '#F97316', border: '#C2410C' },
             norte: { fill: '#8B5CF6', border: '#6D28D9' },
             sul: { fill: '#EC4899', border: '#BE185D' },
             oeste: { fill: '#14B8A6', border: '#0D9488' },
-            grande_sp_leste: { fill: '#F59E0B', border: '#D97706' },
-            grande_sp_oeste: { fill: '#F59E0B', border: '#D97706' },
+            grande_sp: { fill: '#F59E0B', border: '#D97706' },
         };
 
         const regionNames = {
-            centro: 'Centro',
-            leste: 'Zona Leste',
-            norte: 'Zona Norte',
-            sul: 'Zona Sul',
-            oeste: 'Zona Oeste',
-            grande_sp_leste: 'ABC/Guarulhos',
-            grande_sp_oeste: 'Grande SP Oeste',
+            centro: 'SP - Centro',
+            leste: 'SP - Zona Leste',
+            norte: 'SP - Zona Norte',
+            sul: 'SP - Zona Sul',
+            oeste: 'SP - Zona Oeste',
+            grande_sp: 'Grande SP',
         };
 
         let map;
@@ -384,7 +325,7 @@
         function initMap() {
             map = L.map('map').setView([-23.5505, -46.6361], 11);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors',
+                attribution: '&copy; OpenStreetMap contributors',
                 maxZoom: 19
             }).addTo(map);
 
@@ -392,7 +333,6 @@
             updateMarkers();
 
             document.getElementById('showCompetitors').addEventListener('change', updateMarkers);
-            document.getElementById('showNewOnly').addEventListener('change', updateMarkers);
             document.getElementById('phaseFilter').addEventListener('change', updateMarkers);
             document.getElementById('regionFilter').addEventListener('change', updateMarkers);
         }
@@ -406,7 +346,7 @@
 
             const container = document.getElementById('regionStatsContent');
             container.innerHTML = '';
-            const order = ['centro', 'leste', 'norte', 'sul', 'oeste', 'grande_sp_leste', 'grande_sp_oeste'];
+            const order = ['centro', 'leste', 'norte', 'sul', 'oeste', 'grande_sp'];
             order.forEach(r => {
                 if (counts[r]) {
                     const div = document.createElement('div');
@@ -416,7 +356,6 @@
                     container.appendChild(div);
                 }
             });
-            // Total
             const totalDiv = document.createElement('div');
             totalDiv.className = 'region-stat-row';
             totalDiv.style.fontWeight = 'bold';
@@ -430,9 +369,9 @@
             markers = [];
 
             const showComp = document.getElementById('showCompetitors').checked;
-            const showNewOnly = document.getElementById('showNewOnly').checked;
             const phase = document.getElementById('phaseFilter').value;
             const region = document.getElementById('regionFilter').value;
+            const searchTerm = (document.getElementById('searchInput').value || '').toLowerCase();
 
             let compCount = 0;
 
@@ -440,16 +379,17 @@
                 if (phase && unit.fase !== phase) return;
                 
                 const marker = L.circleMarker([unit.lat, unit.lng], {
-                    radius: 8,
+                    radius: 9,
                     fillColor: '#3B82F6',
                     color: '#1E40AF',
                     weight: 2,
                     opacity: 1,
-                    fillOpacity: 0.8
+                    fillOpacity: 0.9
                 }).addTo(map);
 
                 marker.bindPopup(`
                     <strong>${unit.nome}</strong><br/>
+                    <em>Sua Unidade</em><br/>
                     Fase: ${unit.fase}<br/>
                     Custo: ${unit.custo}<br/>
                     Faturamento: ${unit.faturamento}
@@ -460,26 +400,16 @@
             if (showComp) {
                 concorrentes.forEach(comp => {
                     if (region && comp.regiao !== region) return;
-                    if (showNewOnly && !comp.novo) return;
+                    if (searchTerm && !comp.nome.toLowerCase().includes(searchTerm)) return;
 
                     compCount++;
 
-                    const isNew = comp.novo;
                     const r = comp.regiao || 'centro';
-                    let fillColor, borderColor;
-
-                    if (isNew && regionColors[r]) {
-                        fillColor = regionColors[r].fill;
-                        borderColor = regionColors[r].border;
-                    } else {
-                        fillColor = '#EF4444';
-                        borderColor = '#991B1B';
-                    }
-
-                    const radius = isNew ? 7 : 6;
+                    const fillColor = regionColors[r] ? regionColors[r].fill : '#EF4444';
+                    const borderColor = regionColors[r] ? regionColors[r].border : '#991B1B';
 
                     const marker = L.circleMarker([comp.lat, comp.lng], {
-                        radius: radius,
+                        radius: 6,
                         fillColor: fillColor,
                         color: borderColor,
                         weight: 2,
@@ -487,21 +417,17 @@
                         fillOpacity: 0.7
                     }).addTo(map);
 
-                    let popupContent = `<strong>${comp.nome}</strong><br/>Tipo: ${comp.tipo || 'Médio Porte'}`;
-                    if (comp.bairro) {
-                        popupContent += `<br/>Bairro: ${comp.bairro}`;
-                    }
+                    let popupContent = `<strong>${comp.nome}</strong>`;
+                    if (comp.bairro) popupContent += `<br/>Bairro: ${comp.bairro}`;
+                    if (comp.cidade) popupContent += `<br/>Cidade: ${comp.cidade}`;
                     popupContent += `<br/>Região: ${regionNames[r] || r}`;
-                    if (isNew) {
-                        popupContent += `<br/><em style="color: ${fillColor};">Novo</em>`;
-                    }
 
                     marker.bindPopup(popupContent);
                     markers.push(marker);
                 });
             }
 
-            document.getElementById('compCount').textContent = (showNewOnly ? compCount : concorrentes.length) + '+';
+            document.getElementById('compCount').textContent = compCount;
         }
 
         window.addEventListener('load', initMap);
